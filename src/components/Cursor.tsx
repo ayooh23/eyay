@@ -35,9 +35,14 @@ export function Cursor({ dark }: { dark: boolean }) {
 
       prev.current = { x: e.clientX, y: e.clientY }
 
+      // Gallery card hovers (tag state): offset cursor up-left so label doesn't cover the card
+      const OFFSET = 24
+      const x = hovering.current && hoverType.current === "tag" ? e.clientX - OFFSET : e.clientX
+      const y = hovering.current && hoverType.current === "tag" ? e.clientY - OFFSET : e.clientY
+
       gsap.to(el, {
-        x: e.clientX,
-        y: e.clientY,
+        x,
+        y,
         rotation: hovering.current ? 0 : angle.current,
         duration: 0.12,
         ease: "power2.out",

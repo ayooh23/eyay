@@ -10,7 +10,7 @@ interface ContactChatProps {
   open: boolean
   dark: boolean
   reducedMotion: boolean
-  source?: "lab" | "studio"
+  source?: "home" | "services"
 }
 
 interface DisplayMessage {
@@ -30,7 +30,7 @@ const introTimeline = [
   { type: "typing" as const, at: 2000 },
 ]
 
-export function ContactChat({ open, dark, reducedMotion, source = "lab" }: ContactChatProps) {
+export function ContactChat({ open, dark, reducedMotion, source = "home" }: ContactChatProps) {
   const wrapperRef = useRef<HTMLDivElement>(null)
   const innerRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
@@ -118,7 +118,7 @@ export function ContactChat({ open, dark, reducedMotion, source = "lab" }: Conta
     setHasPlayed(true)
 
     const timers: ReturnType<typeof setTimeout>[] = []
-    const secondMessageKey = source === "studio" ? "contact.introStudio" : "contact.introLab"
+    const secondMessageKey = source === "services" ? "contact.introServices" : "contact.introHome"
 
     introTimeline.forEach((event) => {
       const tmr = setTimeout(() => {

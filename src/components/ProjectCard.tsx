@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
+import Link from "next/link"
 import gsap from "gsap"
 import type { AspectRatio } from "@/data/projects"
 
@@ -21,6 +22,9 @@ interface ProjectCardProps {
   media?: string
   aspectRatio?: AspectRatio
   isPlaceholder?: boolean
+  onClick?: () => void
+  href?: string
+  cursorLabel?: string
 }
 
 const ZOOM_SCALE = 1.06
@@ -35,6 +39,9 @@ export function ProjectCard({
   media,
   aspectRatio = "16:9",
   isPlaceholder = false,
+  onClick,
+  href,
+  cursorLabel,
 }: ProjectCardProps) {
   const cardRef = useRef<HTMLDivElement>(null)
   const imageRef = useRef<HTMLDivElement>(null)
@@ -90,14 +97,16 @@ export function ProjectCard({
 
   const showMedia = media && !isPlaceholder
 
-  return (
+  const cardContent = (
     <div
       ref={cardRef}
-      className="flex flex-col gap-2 cursor-pointer w-[360px] shrink-0 snap-center opacity-0 items-start"
+      className="flex flex-col gap-2 cursor-pointer w-[var(--gallery-card-width)] shrink-0 snap-center opacity-0 items-start"
       data-hover
-      data-cursor-label={isPlaceholder ? undefined : name}
+      data-cursor-label={isPlaceholder ? cursorLabel : name}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
+      onClick={href ? undefined : onClick}
+      role={href ? undefined : onClick ? "button" : undefined}
     >
       <div className={`relative rounded-xl overflow-hidden w-full ${aspectClass}`}>
         <div
@@ -125,4 +134,14 @@ export function ProjectCard({
       </div>
     </div>
   )
+
+  if (href) {
+    return (
+      <Link href={href} className="shrink-0 snap-center">
+        {cardContent}
+      </Link>
+    )
+  }
+
+  return cardContent
 }

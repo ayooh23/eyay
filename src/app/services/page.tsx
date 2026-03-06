@@ -70,7 +70,7 @@ function useAnimatedCounter(target: number, duration: number = 1200) {
 }
 
 // ─── Main ──────────────────────────────────────────────────────
-export default function StudioPage() {
+export default function ServicesPage() {
   const [dark, setDark] = useState(false)
   const [themeReady, setThemeReady] = useState(false)
   const [isDesktop, setIsDesktop] = useState(false)
@@ -90,6 +90,12 @@ export default function StudioPage() {
   useEffect(() => {
     setIsDesktop(window.matchMedia("(pointer: fine)").matches)
   }, [])
+
+  useEffect(() => {
+    if (isDesktop) document.body.classList.add("hide-system-cursor")
+    else document.body.classList.remove("hide-system-cursor")
+    return () => document.body.classList.remove("hide-system-cursor")
+  }, [isDesktop])
 
   const handleToggleDark = useCallback(() => {
     setDark((d) => {
@@ -141,7 +147,7 @@ export default function StudioPage() {
           href="/"
           className="text-[11px] uppercase font-medium tracking-widest text-white/70 hover:text-white transition-colors duration-300"
         >
-          {t("lab")}
+          {t("home")}
         </Link>
       </header>
 
@@ -173,7 +179,7 @@ export default function StudioPage() {
       <main className="pt-24 pb-28 px-5 max-w-3xl mx-auto">
         {/* Contact chat */}
         <div className="max-w-xl mx-auto">
-          <ContactChat open={contactOpen} dark={true} reducedMotion={false} source="studio" />
+          <ContactChat open={contactOpen} dark={true} reducedMotion={false} source="services" />
         </div>
 
         {/* ─── Hero ─── */}
@@ -182,18 +188,18 @@ export default function StudioPage() {
             className="text-[11px] uppercase tracking-[0.2em] text-white/60 mb-6"
             style={{ letterSpacing: "0.2em" }}
           >
-            {t("studioPage.heroSubtitle")}
+            {t("servicesPage.heroSubtitle")}
           </p>
           <h1
             className="text-[clamp(2rem,5vw,3.25rem)] font-semibold leading-[1.15] tracking-tight"
             style={{ letterSpacing: "-0.03em" }}
           >
-            {t("studioPage.heroTitle1")}
+            {t("servicesPage.heroTitle1")}
             <br />
-            <span className="text-white/70">{t("studioPage.heroTitle2")}</span>
+            <span className="text-white/70">{t("servicesPage.heroTitle2")}</span>
           </h1>
           <p className="text-[15px] sm:text-[17px] leading-relaxed text-white/70 max-w-md mx-auto mt-6">
-            {t("studioPage.heroDescription")}
+            {t("servicesPage.heroDescription")}
           </p>
         </section>
 
@@ -204,10 +210,10 @@ export default function StudioPage() {
               <div key={num}>
                 <span className="text-[11px] uppercase tracking-[0.12em] text-white/50">{num}</span>
                 <h2 className="text-[20px] sm:text-[22px] font-semibold mt-2 tracking-tight" style={{ letterSpacing: "-0.02em" }}>
-                  {t(`studioPage.pillars.${num}.title`)}
+                  {t(`servicesPage.pillars.${num}.title`)}
                 </h2>
                 <p className="text-[15px] leading-relaxed text-white/70 mt-2 max-w-xl">
-                  {t(`studioPage.pillars.${num}.desc`)}
+                  {t(`servicesPage.pillars.${num}.desc`)}
                 </p>
               </div>
             ))}
@@ -217,13 +223,13 @@ export default function StudioPage() {
         {/* ─── What we solve (editorial) ─── */}
         <section className="py-16 border-t border-white/15">
           <p className="text-[11px] uppercase tracking-[0.2em] text-white/50 mb-10">
-            {t("studioPage.sectionWhatWeSolve")}
+            {t("servicesPage.sectionWhatWeSolve")}
           </p>
           <ul className="space-y-8">
             {chatBubbleIndices.map((i) => (
               <li key={i} className="space-y-2">
-                <p className="text-[14px] text-white/60 italic">{t(`studioPage.chatBubbles.${i}.problem`)}</p>
-                <p className="text-[15px] font-medium">{t(`studioPage.chatBubbles.${i}.solution`)}</p>
+                <p className="text-[14px] text-white/60 italic">{t(`servicesPage.chatBubbles.${i}.problem`)}</p>
+                <p className="text-[15px] font-medium">{t(`servicesPage.chatBubbles.${i}.solution`)}</p>
               </li>
             ))}
           </ul>
@@ -232,10 +238,10 @@ export default function StudioPage() {
         {/* ─── Pricing & process ─── */}
         <section className="py-16 border-t border-white/15">
           <p className="text-[11px] uppercase tracking-[0.2em] text-white/50 mb-2">
-            {t("studioPage.sectionPricing")}
+            {t("servicesPage.sectionPricing")}
           </p>
           <h2 className="text-[28px] sm:text-[34px] font-semibold tracking-tight mt-2" style={{ letterSpacing: "-0.03em" }}>
-            {t("studioPage.pricingHeadline")}
+            {t("servicesPage.pricingHeadline")}
           </h2>
 
           <div className="flex flex-wrap gap-2 mt-10 mb-10">
@@ -249,44 +255,44 @@ export default function StudioPage() {
                     : "bg-white/15 text-white hover:bg-white/25"
                 }`}
               >
-                {t(`studioPage.services.${key}.label`)}
+                {t(`servicesPage.services.${key}.label`)}
               </button>
             ))}
           </div>
 
           <div className="grid sm:grid-cols-2 gap-12 sm:gap-16">
             <div>
-              <p className="text-[11px] uppercase tracking-[0.12em] text-white/50">{t("studioPage.from")}</p>
+              <p className="text-[11px] uppercase tracking-[0.12em] text-white/50">{t("servicesPage.from")}</p>
               <p className="text-[3rem] sm:text-[4rem] font-bold leading-none tracking-tight mt-1" style={{ letterSpacing: "-0.04em" }}>
                 {formatPrice(animatedPrice)}
                 {currentMeta.suffix && (
                   <span className="text-[0.35em] font-normal text-white/60 align-top">{currentMeta.suffix}</span>
                 )}
               </p>
-              <p className="text-[14px] text-white/60 mt-2">{t("studioPage.projectTime")} {t(`studioPage.services.${activeService}.timeline`)}</p>
+              <p className="text-[14px] text-white/60 mt-2">{t("servicesPage.projectTime")} {t(`servicesPage.services.${activeService}.timeline`)}</p>
 
               <button
                 onClick={() => setShowRationale((s) => !s)}
                 className="mt-6 text-[14px] text-white/80 hover:text-white underline underline-offset-2"
               >
-                {showRationale ? t("studioPage.hide") : t("studioPage.whyCost")}
+                {showRationale ? t("servicesPage.hide") : t("servicesPage.whyCost")}
               </button>
 
               {showRationale && (
                 <div className="mt-4 p-5 rounded-lg bg-white/10 text-[14px] leading-relaxed text-white/80">
-                  {t(`studioPage.services.${activeService}.rationale`)}
+                  {t(`servicesPage.services.${activeService}.rationale`)}
                 </div>
               )}
             </div>
 
             <div key={deliverablesKey}>
-              <p className="text-[11px] uppercase tracking-[0.12em] text-white/50">{t("studioPage.whatYouGet")}</p>
+              <p className="text-[11px] uppercase tracking-[0.12em] text-white/50">{t("servicesPage.whatYouGet")}</p>
               <p className="text-[18px] font-semibold mt-2 tracking-tight" style={{ letterSpacing: "-0.02em" }}>
-                {t(`studioPage.services.${activeService}.tagline`)}
+                {t(`servicesPage.services.${activeService}.tagline`)}
               </p>
               <ul className="mt-5 space-y-3">
                 {[0, 1, 2, 3].map((i) => {
-                  const text = t(`studioPage.services.${activeService}.deliverables.${i}`)
+                  const text = t(`servicesPage.services.${activeService}.deliverables.${i}`)
                   return text ? (
                     <li key={i} className="text-[14px] text-white/75 leading-relaxed pl-4 border-l-2 border-white/30">
                       {text}
@@ -298,7 +304,7 @@ export default function StudioPage() {
                 onClick={() => setContactOpen(true)}
                 className="mt-8 px-5 py-3 rounded-full bg-white text-[#0000FF] text-[14px] font-medium hover:bg-white/90 transition-colors"
               >
-                {t("studioPage.discussProject")}
+                {t("servicesPage.discussProject")}
               </button>
             </div>
           </div>
@@ -307,7 +313,7 @@ export default function StudioPage() {
         {/* ─── Team ─── */}
         <section className="py-16 border-t border-white/15">
           <p className="text-[11px] uppercase tracking-[0.2em] text-white/50 mb-10">
-            {t("studioPage.sectionTeam")}
+            {t("servicesPage.sectionTeam")}
           </p>
           <div className="flex flex-col sm:flex-row gap-12 sm:gap-16">
             {teamKeys.map((member) => (
@@ -316,7 +322,7 @@ export default function StudioPage() {
                   {member.initial}
                 </span>
                 <p className="mt-3 text-[16px] font-semibold">{member.name}</p>
-                <p className="text-[14px] text-white/60">{t(`studioPage.team.${member.key}.role`)}</p>
+                <p className="text-[14px] text-white/60">{t(`servicesPage.team.${member.key}.role`)}</p>
               </div>
             ))}
           </div>
@@ -325,18 +331,18 @@ export default function StudioPage() {
         {/* ─── Selected builds ─── */}
         <section className="py-16 border-t border-white/15">
           <p className="text-[11px] uppercase tracking-[0.2em] text-white/50 mb-10">
-            {t("studioPage.sectionSelectedBuilds")}
+            {t("servicesPage.sectionSelectedBuilds")}
           </p>
           <ul className="space-y-6">
             {selectedBuildKeys.map((build) => (
               <li key={build.key} className="group">
                 <p className="text-[16px] font-semibold group-hover:text-white/90">{build.name}</p>
-                <p className="text-[14px] text-white/60 mt-0.5">{t(`studioPage.selectedBuilds.${build.key}.tag`)}</p>
+                <p className="text-[14px] text-white/60 mt-0.5">{t(`servicesPage.selectedBuilds.${build.key}.tag`)}</p>
               </li>
             ))}
           </ul>
           <p className="mt-8 text-[13px] italic text-white/50 text-center">
-            {t("studioPage.moreWorkNda")}
+            {t("servicesPage.moreWorkNda")}
           </p>
         </section>
 
@@ -374,7 +380,7 @@ export default function StudioPage() {
           </div>
 
           <p className="mt-8 text-[13px] text-white/50" style={{ letterSpacing: "0.12em" }}>
-            {t("studioPage.footerAddress")}
+            {t("servicesPage.footerAddress")}
           </p>
         </footer>
       </main>

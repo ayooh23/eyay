@@ -2,8 +2,10 @@
   "loader": {
     "suffix": "waar ideeën vandaag worden gebouwd"
   },
-  "studio": "Studio →",
-  "lab": "Lab",
+  "studio": "Services →",
+  "lab": "Home",
+  "home": "Home",
+  "services": "Services →",
   "messages": {
     "1": "Ey ay",
     "2": "Yo sin",
@@ -18,8 +20,10 @@
     "builders": "bouwers",
     "team": "team",
     "selfInitiated": "zelf geïnitieerd",
-    "studioLink": "Studio →",
-    "studioAddress": "eyay.studio — Amsterdam"
+    "studioLink": "Services →",
+    "studioAddress": "eyay.studio — Amsterdam",
+    "servicesLink": "Services →",
+    "servicesAddress": "eyay.studio — Amsterdam"
   },
   "projectTags": {
     "project-1": "…een bewegende taal ondersteunt",
@@ -32,6 +36,22 @@
     "project-8": "…je dienst voelbaar beter maakt",
     "project-9": "…helpt gebruikers te kiezen voor actie in plaats van geruststelling?"
   },
+  "projectMessages": {
+    "project-1": "Speakeasy is Duolingo op straat. Taalleren in de echte wereld — oefenen in context, met de stad als klaslokaal. Je leert niet alleen woorden, je gebruikt ze waar het uitmaakt.",
+    "project-2": "BR-ND People wilde een site die bij ze past — een creatief veranderbureau, geen corporate brochure. We bouwden een site met beweging, helderheid en een duidelijke stem. Het soort ding waar mensen even bij stil staan: dit is anders.",
+    "project-3": "23plusone is een onderzoeksdashboard voor data-analyse — een innovatieve en vooral emotieve manier om geluk te meten. Scan- en enquêtedata worden een helder, visueel verhaal zodat teams zien wat er speelt en erop kunnen acteren.",
+    "project-4": "Stel je een SEH-arts voor die nu direct onderdak of crisisopvang voor een patiënt moet vinden. In de praktijk zitten ze vast aan verouderde lijsten en 'wie weet wat' op dat moment. D+O is een razendsnel webtool: openen, kaart met nabije voorzieningen, filteren op behoefte, pin aantikken, en je hebt meteen de juiste info om door te verwijzen. Geen inlog, geen patiëntgegevens, geen ingewikkeld systeem.",
+    "project-5": "GEO Search gaat over zoeken en vinden met LLM’s — de nieuwe SEO, generatief. Waar klassieke search en taalmodel samenkomen: betere vindbaarheid, slimmere resultaten en zoeken dat begrijpt wat mensen bedoelen.",
+    "project-6": "Cultuurbehoud gaat over het digitaliseren van analoge archieven. We hielpen fysieke collecties — documenten, opnames, objecten — omzetten naar gestructureerde, doorzoekbare digitale bestanden zodat cultuur bewaard en toegankelijk blijft voor de volgende generatie.",
+    "project-7": "Het workflow-tool pakt wat je team met de hand doet en automatiseert het repeterende werk. Geen groot platform, geen alles-vervangen — een gericht tool dat aansluit bij hoe jullie al werken en tijd teruggeeft voor wat echt een mens nodig heeft.",
+    "project-8": "Het clientportaal laat je dienst voelen zoals die is. Klanten hebben één duidelijke plek om voortgang te zien, feedback te geven en op de hoogte te blijven — zodat de ervaring past bij de kwaliteit van het werk dat je levert.",
+    "project-9": "Untangle ondersteunt mensen met OCD via ERP — Exposure and Response Prevention. Een digitale tool die gebruikers begeleidt bij evidence-based oefeningen om angsten aan te gaan en compulsies stapsgewijs te verminderen."
+  },
+  "projectMessagePrefix": {
+    "so": "Dus... ",
+    "whatAbout": "Wat als... ",
+    "maybe": "Misschien deze? "
+  },
   "galleryServices": {
     "mvp": "…brengt je van MVP tot gelanceerd product",
     "aiFeature": "…scopt en levert één echte AI-feature",
@@ -41,13 +61,91 @@
   },
   "contact": {
     "hey": "hey!",
-    "introLab": "vertel over je idee",
-    "introStudio": "vertel over je project",
+    "introHome": "vertel over je idee",
+    "introServices": "vertel over je project",
     "placeholder": "typ je idee…",
     "mailtoSubject": "Nieuw idee",
     "sendAria": "Bericht versturen"
   },
+  "serviceReply": {
+    "message": "Klinkt goed",
+    "button": "Bekijk onze services"
+  },
+  "cursorLabels": {
+    "exploreServices": "Ontdek onze services"
+  },
   "studioPage": {
+    "heroSubtitle": "eyay.studio · Amsterdam",
+    "heroTitle1": "We bouwen met AI.",
+    "heroTitle2": "Niet alleen erover.",
+    "heroDescription": "Een digital product studio in Amsterdam. Drie mensen leveren wat tien deed — snellere iteratie, meer resultaat, senior kwaliteit.",
+    "sectionWhatWeSolve": "Wat we oplossen",
+    "sectionPricing": "Pricing & proces",
+    "pricingHeadline": "Transparante pricing. Vaste prijzen. Geen verrassingen.",
+    "from": "Vanaf",
+    "projectTime": "Projectduur:",
+    "whyCost": "Waarom kost / duurt dit zoveel?",
+    "hide": "Verbergen",
+    "whatYouGet": "Wat je krijgt",
+    "discussProject": "Bespreken we dit project →",
+    "sectionTeam": "Het team",
+    "sectionSelectedBuilds": "Selectie werk",
+    "moreWorkNda": "Meer werk op aanvraag — sommige projecten vallen onder NDA.",
+    "footerAddress": "eyay.studio · Amsterdam, NL",
+    "chatBubbles": {
+      "0": { "problem": "Onze website weerspiegelt de kwaliteit van ons bedrijf niet.", "solution": "Premium site — ontworpen, gebouwd en opgeleverd." },
+      "1": { "problem": "Mijn team verspilt uren aan repeterend handwerk.", "solution": "Intern tool dat het werk automatiseert." },
+      "2": { "problem": "We hebben een product nodig maar geen tech team.", "solution": "Volledige MVP — van concept tot launch, één team." },
+      "3": { "problem": "We weten dat AI kan helpen maar niet waar te beginnen.", "solution": "Eén praktische AI-feature, afgebakend en opgeleverd." }
+    },
+    "pillars": {
+      "01": { "title": "AI-Native Workflow", "desc": "AI versnelt elke fase — design, code, iteratie, QA. Meer output, minder mensen, snellere levering." },
+      "02": { "title": "End-to-End Ownership", "desc": "Eén team van onderzoek tot productie. Geen overdrachten, geen tussenpersonen. De mensen die je spreekt bouwen ook." },
+      "03": { "title": "Cutting-Edge Stack", "desc": "Next.js, TypeScript, Tailwind, Vercel, Supabase. Gebouwd voor performance en onderhoud. Geen legacy vanaf dag één." }
+    },
+    "team": {
+      "ayu": { "role": "Design & Strategie" },
+      "sinyo": { "role": "Development & AI" },
+      "alexander": { "role": "Senior Advisor" }
+    },
+    "selectedBuilds": {
+      "do": { "tag": "Spoedzorgplatform · OLVG Amsterdam" },
+      "brnd": { "tag": "Merkenwebsite met motion storytelling" },
+      "vanvulpen": { "tag": "Cultuurfilm · 1.300 medewerkers" },
+      "23plusone": { "tag": "Geluksscan · digitaal assessmentproduct" }
+    },
+    "services": {
+      "sprint": {
+        "label": "Design Sprint",
+        "timeline": "2–3 weken",
+        "tagline": "Onderzoek tot prototype. Geen deck, geen poespas.",
+        "deliverables": ["UX-audit van bestaand product of brief", "Redesignvoorstel met onderbouwing", "Interactief prototype (Figma of live)", "Handoff-klaar voor development"],
+        "rationale": "De meeste studios doen 6 weken over een prototype — de helft daarvan gaat op aan interne reviews, junior-revisies en slide decks. Wij doen 2–3 weken omdat AI research synthesis, copy-varianten en iteratielussen comprimeert. Je krijgt de volle aandacht van een senior designer en een productie-klaar prototype. Eén vast bedrag. Geen verrassingen."
+      },
+      "build": {
+        "label": "Build & Launch",
+        "timeline": "4–12 weken",
+        "tagline": "Van concept tot gelanceerd product. Van A tot Z.",
+        "deliverables": ["Volledig UX/UI design system", "Productie-grade development (Next.js, TypeScript)", "Live op jouw infrastructuur", "Eén team van eerste gesprek tot launch — geen overdrachten"],
+        "rationale": "Een volwaardig bureau rekent €30k+ en doet een kwartaal. Wij rekenen een fractie en leveren in weken — omdat we de overhead hebben weggehaald: geen accountmanagers, geen overdrachten, geen legacy process. AI doet wat vroeger drie junior developers kostte. Je betaalt voor het resultaat, niet voor onze agenda. Vaste prijs. Geen scope creep."
+      },
+      "ai": {
+        "label": "AI Feature",
+        "timeline": "2–4 weken",
+        "tagline": "Eén echte AI-feature. Strak afgebakend, snel opgeleverd.",
+        "deliverables": ["Scoping-sessie — wat bouwen en waarom", "Eén productie-klare AI-feature in je product", "Integratie met je bestaande stack", "Documentatie en handoff"],
+        "rationale": "De meeste 'AI-integraties' zijn wrappers met een chatbot. Wij scopen en bouwen een feature die echt iets verandert aan je product — geautomatiseerde rapportage, slim zoeken, een workflow die handmatige uren vervangt. We weten waar AI goed in is en waar niet. Je krijgt praktisch resultaat, geen proof of concept."
+      },
+      "retainer": {
+        "label": "Retainer",
+        "timeline": "Doorlopend",
+        "tagline": "Doorlopende senior support. Geen opgeblazen retainer.",
+        "deliverables": ["Flexibele maandelijkse design- en development scope", "Prioriteit en directe toegang tot het team", "Wekelijkse check-in, async of call", "Schaalt op wanneer nodig, eerlijk wanneer niet"],
+        "rationale": "De meeste retainers zitten vol met uren die geen verschil maken. Die van ons niet. We werken snel door hoe we zijn opgezet — AI comprimeert het repeterende werk, dus elke uur gaat naar wat er toe doet. Senior output zonder senior-bureau overhead. Altijd opzegbaar."
+      }
+    }
+  },
+  "servicesPage": {
     "heroSubtitle": "eyay.studio · Amsterdam",
     "heroTitle1": "We bouwen met AI.",
     "heroTitle2": "Niet alleen erover.",

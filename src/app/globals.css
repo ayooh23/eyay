@@ -1,5 +1,15 @@
 @import "tailwindcss";
 
+/* Gallery card width: match message bubble on mobile (240px), full size from sm */
+:root {
+  --gallery-card-width: 240px;
+}
+@media (min-width: 640px) {
+  :root {
+    --gallery-card-width: 360px;
+  }
+}
+
 /* Smooth scrolling */
 html {
   scroll-behavior: smooth;
@@ -24,4 +34,10 @@ html {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* Hide system cursor when custom cursor is active (body class set by home/services pages) */
+body.hide-system-cursor,
+body.hide-system-cursor * {
+  cursor: none !important;
 }

@@ -3,8 +3,9 @@
 import { useEffect, useRef } from "react"
 import gsap from "gsap"
 
-export function TypingIndicator({ dark }: { dark: boolean }) {
+export function TypingIndicator({ dark, align = "left" }: { dark: boolean; align?: "left" | "right" }) {
   const containerRef = useRef<HTMLDivElement>(null)
+  const isRight = align === "right"
 
   useEffect(() => {
     const dots = containerRef.current?.querySelectorAll(".typing-dot")
@@ -20,11 +21,12 @@ export function TypingIndicator({ dark }: { dark: boolean }) {
   }, [])
 
   return (
-    <div className="flex justify-start mb-1.5">
+    <div className={`flex mb-1.5 ${isRight ? "justify-end" : "justify-start"}`}>
       <div
         ref={containerRef}
         className={`
-          flex items-center gap-[5px] px-3.5 py-2.5 rounded-2xl rounded-bl-sm
+          flex items-center gap-[5px] px-3.5 py-2.5 rounded-2xl
+          ${isRight ? "rounded-br-sm" : "rounded-bl-sm"}
           ${dark ? "bg-neutral-800" : "bg-neutral-100"}
         `}
       >

@@ -2,8 +2,10 @@
   "loader": {
     "suffix": "where ideas get built today"
   },
-  "studio": "Studio →",
-  "lab": "Lab",
+  "studio": "Services →",
+  "lab": "Home",
+  "home": "Home",
+  "services": "Services →",
   "messages": {
     "1": "Ey ay",
     "2": "Yo sin",
@@ -18,8 +20,10 @@
     "builders": "builders",
     "team": "team",
     "selfInitiated": "self-initiated",
-    "studioLink": "Studio →",
-    "studioAddress": "eyay.studio — Amsterdam"
+    "studioLink": "Services →",
+    "studioAddress": "eyay.studio — Amsterdam",
+    "servicesLink": "Services →",
+    "servicesAddress": "eyay.studio — Amsterdam"
   },
   "projectTags": {
     "project-1": "…promotes a language that keeps evolving",
@@ -32,6 +36,22 @@
     "project-8": "…makes your service feel as good as it is",
     "project-9": "…helps users choose action over reassurance?"
   },
+  "projectMessages": {
+    "project-1": "Speakeasy is like Duolingo on the streets. It brings language learning into the real world — practice in context, with the city as your classroom. So you don’t just learn words, you use them where it matters.",
+    "project-2": "BR-ND People needed a site that felt like them — a creative change agency, not a corporate brochure. We built a site with motion, clarity, and a clear point of view. The kind of thing that makes people stop scrolling and think: this is different.",
+    "project-3": "23plusone is a research data analysis dashboard for an innovative — and above all emotive — way of measuring happiness. It turns survey and scan data into a clear, visual story so teams can see what’s going on and act on it.",
+    "project-4": "Picture an ER doctor who needs to find shelter or crisis support for a patient, right now. In reality they're stuck with outdated lists and 'who knows what' in the moment. D+O is a super fast web tool: open it, see a map of nearby services, filter by need, tap a pin, and you immediately have the right info to refer. No login, no patient data, no complicated system.",
+    "project-5": "GEO Search is about LLM-powered search and find — the new SEO, generative style. It’s where traditional search meets language models: better discovery, smarter results, and findability that actually understands what people mean.",
+    "project-6": "Cultuurbehoud is about digitalizing analogue archives. We helped turn physical collections — documents, recordings, objects — into structured, searchable digital assets so culture is preserved and accessible for the next generation.",
+    "project-7": "The workflow tool takes what your team does by hand and automates the repetitive bits. No big platform, no rip-and-replace — a focused tool that fits how you already work and gives time back for the stuff that actually needs a human.",
+    "project-8": "The client portal makes your service feel as good as it is. Clients get a clear place to see progress, share feedback, and stay in the loop — so the experience matches the quality of the work you deliver.",
+    "project-9": "Untangle supports people with OCD through ERP — Exposure and Response Prevention. It's a digital tool that guides users through evidence-based exercises so they can face fears and reduce compulsions in a structured, supportive way."
+  },
+  "projectMessagePrefix": {
+    "so": "So... ",
+    "whatAbout": "What about... ",
+    "maybe": "Maybe this? "
+  },
   "galleryServices": {
     "mvp": "…takes you from MVP to shipped product",
     "aiFeature": "…scopes and ships one real AI feature",
@@ -41,13 +61,91 @@
   },
   "contact": {
     "hey": "hey!",
-    "introLab": "tell us about your idea",
-    "introStudio": "tell me about your project",
+    "introHome": "tell us about your idea",
+    "introServices": "tell me about your project",
     "placeholder": "type your idea…",
     "mailtoSubject": "New idea",
     "sendAria": "Send message"
   },
+  "serviceReply": {
+    "message": "Sounds good",
+    "button": "View our services"
+  },
+  "cursorLabels": {
+    "exploreServices": "Explore our services"
+  },
   "studioPage": {
+    "heroSubtitle": "eyay.studio · Amsterdam",
+    "heroTitle1": "We build with AI.",
+    "heroTitle2": "Not just about it.",
+    "heroDescription": "A digital product studio in Amsterdam. Three people delivering what used to take ten — faster iteration, higher output, senior-level quality.",
+    "sectionWhatWeSolve": "What we solve",
+    "sectionPricing": "Pricing & process",
+    "pricingHeadline": "Transparent pricing. Flat fees. No surprises.",
+    "from": "From",
+    "projectTime": "Project time:",
+    "whyCost": "Why does this cost / take this long?",
+    "hide": "Hide",
+    "whatYouGet": "What you get",
+    "discussProject": "Discuss this project →",
+    "sectionTeam": "The team",
+    "sectionSelectedBuilds": "Selected builds",
+    "moreWorkNda": "More work available on request — some projects are under NDA.",
+    "footerAddress": "eyay.studio · Amsterdam, NL",
+    "chatBubbles": {
+      "0": { "problem": "Our website doesn't reflect the quality of our business.", "solution": "Premium site — designed, built, and shipped." },
+      "1": { "problem": "My team wastes hours on repetitive manual work.", "solution": "Internal tool that automates the workflow." },
+      "2": { "problem": "We need a product but have no tech team.", "solution": "Full MVP — concept to launch, one team." },
+      "3": { "problem": "We know AI could help but don't know where to start.", "solution": "One practical AI feature, scoped and shipped." }
+    },
+    "pillars": {
+      "01": { "title": "AI-Native Workflow", "desc": "AI accelerates every stage — design, code, iteration, QA. More output, fewer people, faster delivery." },
+      "02": { "title": "End-to-End Ownership", "desc": "One team from research to production. No handoffs, no middlemen. The people you meet are the people who build." },
+      "03": { "title": "Cutting-Edge Stack", "desc": "Next.js, TypeScript, Tailwind, Vercel, Supabase. Built for performance and maintainability. No legacy from day one." }
+    },
+    "team": {
+      "ayu": { "role": "Design & Strategy" },
+      "sinyo": { "role": "Development & AI" },
+      "alexander": { "role": "Senior Advisor" }
+    },
+    "selectedBuilds": {
+      "do": { "tag": "Emergency care platform · OLVG Amsterdam" },
+      "brnd": { "tag": "Brand website with motion storytelling" },
+      "vanvulpen": { "tag": "Culture film · 1,300 employees" },
+      "23plusone": { "tag": "Happiness scan · digital assessment product" }
+    },
+    "services": {
+      "sprint": {
+        "label": "Design Sprint",
+        "timeline": "2–3 weeks",
+        "tagline": "Research to prototype. No deck, no fluff.",
+        "deliverables": ["UX audit of existing product or brief", "Redesign proposal with rationale", "Interactive prototype (Figma or live)", "Handoff-ready for development"],
+        "rationale": "Most studios take 6 weeks to deliver a prototype — half that time is internal reviews, junior revisions, and slide decks. We take 2–3 weeks because AI compresses research synthesis, copy variants, and iteration loops that used to eat entire sprints. You get a senior designer's full attention and a production-ready prototype. One flat fee. No surprises."
+      },
+      "build": {
+        "label": "Build & Launch",
+        "timeline": "4–12 weeks",
+        "tagline": "From concept to shipped product. End to end.",
+        "deliverables": ["Full UX/UI design system", "Production-grade development (Next.js, TypeScript)", "Deployed and live on your infrastructure", "One team from first call to launch — no handoffs"],
+        "rationale": "A full agency charges €30k+ and takes a quarter. We charge a fraction of that and ship in weeks — because we've removed the overhead: no account managers, no handoffs, no legacy process. AI handles what used to require three junior developers. You pay for the outcome, not our calendar. Flat fee. No scope creep."
+      },
+      "ai": {
+        "label": "AI Feature",
+        "timeline": "2–4 weeks",
+        "tagline": "One real AI feature. Scoped tight, shipped fast.",
+        "deliverables": ["Scoping session — what to build and why", "One production-ready AI feature in your product", "Integration with your existing stack", "Documentation and handoff"],
+        "rationale": "Most 'AI integrations' are wrappers with a chatbot. We scope and ship a feature that actually changes how your product works — automated reporting, smart search, a workflow that replaces manual hours. We know what AI is genuinely good at and what it isn't. You get practical output, not a proof of concept."
+      },
+      "retainer": {
+        "label": "Retainer",
+        "timeline": "Ongoing",
+        "tagline": "Ongoing senior support. No retainer bloat.",
+        "deliverables": ["Flexible monthly design and development scope", "Priority response and direct access to the team", "Weekly check-in, async or call", "Scales up when you need it, honest when you don't"],
+        "rationale": "Most retainers are padded with hours that don't move the needle. Ours aren't. We work fast because of how we're built — AI compresses the repetitive work, so every hour goes into things that actually matter. You get senior-level output without senior-agency overhead. Cancel anytime."
+      }
+    }
+  },
+  "servicesPage": {
     "heroSubtitle": "eyay.studio · Amsterdam",
     "heroTitle1": "We build with AI.",
     "heroTitle2": "Not just about it.",

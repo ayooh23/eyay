@@ -98,17 +98,15 @@ export const galleryServicePlaceholders: GalleryServicePlaceholder[] = [
 
 export type GalleryItem = { type: "project"; project: Project } | GalleryServicePlaceholder
 
-// Interleave projects with service placeholders for the home gallery
+// Interleave projects with service placeholders: one placeholder for each service, in between projects.
 export function getGalleryItems(): GalleryItem[] {
   const items: GalleryItem[] = []
   const services = [...galleryServicePlaceholders]
   projects.forEach((project, i) => {
     items.push({ type: "project", project })
-    if (services.length > 0 && (i % 2 === 1 || i === 0)) {
-      const service = services.shift()!
-      items.push(service)
+    if (services.length > 0) {
+      items.push(services.shift()!)
     }
   })
-  items.push(...services)
   return items
 }

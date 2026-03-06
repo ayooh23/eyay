@@ -139,10 +139,14 @@ export default function Home() {
   const [readMessages, setReadMessages] = useState<Set<number>>(new Set())
   const [showGallery, setShowGallery] = useState(false)
   const [contactOpen, setContactOpen] = useState(false)
+  const [clickedProjectId, setClickedProjectId] = useState<string | null>(null)
+  const [projectMessagePhase, setProjectMessagePhase] = useState<"idle" | "typing" | "message">("idle")
   const footerRef = useRef<HTMLDivElement>(null)
   const galleryScrollRef = useRef<HTMLDivElement>(null)
   const galleryCardRefs = useRef<(HTMLDivElement | null)[]>([])
   const [activeGalleryIndex, setActiveGalleryIndex] = useState(0)
+  const messageBlockRef = useRef<HTMLDivElement>(null)
+  const messageInnerRef = useRef<HTMLDivElement>(null)
 
   const messages = useMemo(() => buildMessages(), [])
   const galleryItems = useMemo(() => getGalleryItems(), [])
@@ -154,6 +158,12 @@ export default function Home() {
     setReducedMotion(window.matchMedia("(prefers-reduced-motion: reduce)").matches)
     setIsDesktop(window.matchMedia("(pointer: fine)").matches)
   }, [])
+
+  useEffect(() => {
+    if (isDesktop) document.body.classList.add("hide-system-cursor")
+    else document.body.classList.remove("hide-system-cursor")
+    return () => document.body.classList.remove("hide-system-cursor")
+  }, [isDesktop])
 
   // Sync dark mode with user preference (localStorage + system) on mount.
   // On return visit (reload), skip loader and show hero + gallery immediately.
@@ -263,6 +273,20 @@ export default function Home() {
     setActiveGalleryIndex(best)
   }, [])
 
+  // Scroll gallery so the card at index i is centered (e.g. after click)
+  const scrollGalleryToIndex = useCallback(
+    (index: number) => {
+      const cardEl = galleryCardRefs.current[index]
+      if (!cardEl) return
+      cardEl.scrollIntoView({
+        inline: "center",
+        block: "nearest",
+        behavior: reducedMotion ? "auto" : "smooth",
+      })
+    },
+    [reducedMotion]
+  )
+
   useEffect(() => {
     if (!showGallery) return
     let cleanup: (() => void) | undefined
@@ -283,7 +307,40 @@ export default function Home() {
     }
   }, [showGallery, updateActiveProject])
 
-  // Footer entrance — IntersectionObserver triggers GSAP
+  useEffect(() => {
+    if (!showGallery || !clickedProjectId || projectMessagePhase !== "typing") return
+    const delay = reducedMotion ? 0 : 1200
+    const timer = setTimeout(() => setProjectMessagePhase("message"), delay)
+    return () => clearTimeout(timer)
+  }, [showGallery, clickedProjectId, projectMessagePhase, reducedMotion])
+
+  // Animate message block height so gallery repositions smoothly when message content changes
+  useEffect(() => {
+    if (!showGallery || !clickedProjectId) return
+    const outer = messageBlockRef.current
+    const inner = messageInnerRef.current
+    if (!outer || !inner) return
+
+    const updateHeight = () => {
+      const targetHeight = inner.offsetHeight
+      if (reducedMotion) {
+        gsap.set(outer, { height: targetHeight, overflow: "hidden" })
+        return
+      }
+      const currentHeight = outer.offsetHeight
+      gsap.fromTo(
+        outer,
+        { height: currentHeight, overflow: "hidden" },
+        { height: targetHeight, duration: 0.4, ease: "power2.out", overflow: "hidden" }
+      )
+    }
+
+    // Wait for DOM to have updated content (typing vs message, or new project message)
+    const raf = requestAnimationFrame(() => {
+      requestAnimationFrame(updateHeight)
+    })
+    return () => cancelAnimationFrame(raf)
+  }, [showGallery, clickedProjectId, projectMessagePhase, reducedMotion, locale])
   useEffect(() => {
     if (!showGallery || !footerRef.current) return
 
@@ -368,13 +425,13 @@ export default function Home() {
         </div>
 
         <Link
-          href="/studio"
+          href="/services"
           className={`text-[11px] uppercase font-medium tracking-widest transition-colors duration-300 ${
             dark ? "text-neutral-500 hover:text-neutral-300" : "text-neutral-400 hover:text-neutral-600"
           }`}
           data-hover
         >
-          {t("studio")}
+          {t("services")}
         </Link>
       </header>
 
@@ -471,6 +528,31 @@ export default function Home() {
             )}
           </div>
 
+          {/* Message by ay when a project is clicked — above gallery */}
+          {showGallery && clickedProjectId && (
+            <div
+              ref={messageBlockRef}
+              className="mt-4 mb-2 max-w-md mx-auto"
+              style={{ overflow: "hidden" }}
+            >
+              <div ref={messageInnerRef} className="flex flex-col items-end">
+                {projectMessagePhase === "typing" && (
+                  <TypingIndicator dark={dark} align="right" />
+                )}
+                {projectMessagePhase === "message" && (
+                  <MessageBubble
+                    text={t(`projectMessages.${clickedProjectId}`) || t(`projectTags.${clickedProjectId}`)}
+                    sender="ayu"
+                    time="11:19"
+                    dark={dark}
+                    reducedMotion={reducedMotion}
+                    wide
+                  />
+                )}
+              </div>
+            </div>
+          )}
+
           {/* ─── Gallery — full viewport width scroll, soft side overlays ─── */}
           {showGallery && (
             <section
@@ -492,10 +574,10 @@ export default function Home() {
                 ref={galleryScrollRef}
                 className="flex gap-4 overflow-x-auto overflow-y-visible no-scrollbar snap-x snap-mandatory items-start pb-4"
                 style={{
-                  paddingLeft: "calc((100vw - 360px) / 2)",
-                  paddingRight: "calc((100vw - 360px) / 2)",
-                  scrollPaddingLeft: "calc((100vw - 360px) / 2)",
-                  scrollPaddingRight: "calc((100vw - 360px) / 2)",
+                  paddingLeft: "calc((100vw - var(--gallery-card-width)) / 2)",
+                  paddingRight: "calc((100vw - var(--gallery-card-width)) / 2)",
+                  scrollPaddingLeft: "calc((100vw - var(--gallery-card-width)) / 2)",
+                  scrollPaddingRight: "calc((100vw - var(--gallery-card-width)) / 2)",
                 }}
               >
                 {galleryItems.map((item, i) => (
@@ -514,6 +596,12 @@ export default function Home() {
                         reducedMotion={reducedMotion}
                         media={item.project.media}
                         aspectRatio={item.project.aspectRatio ?? "16:9"}
+                        onClick={() => {
+                          setActiveGalleryIndex(i)
+                          setClickedProjectId(item.project.id)
+                          setProjectMessagePhase("typing")
+                          scrollGalleryToIndex(i)
+                        }}
                       />
                     ) : (
                       <ProjectCard
@@ -525,6 +613,8 @@ export default function Home() {
                         reducedMotion={reducedMotion}
                         aspectRatio={item.aspectRatio}
                         isPlaceholder
+                        cursorLabel={t("cursorLabels.exploreServices")}
+                        href="/services"
                       />
                     )}
                   </div>
@@ -561,11 +651,7 @@ export default function Home() {
 
                 <button
                   onClick={() => setContactOpen((o) => !o)}
-                  className={`inline-block mt-5 px-6 py-3 rounded-full text-[15px] font-medium transition-all duration-300 ${
-                    dark
-                      ? "bg-white text-neutral-900 hover:bg-neutral-200"
-                      : "bg-neutral-900 text-white hover:bg-neutral-700"
-                  }`}
+                  className="inline-block mt-5 px-6 py-3 rounded-full text-[15px] font-medium transition-all duration-300 bg-[#0000FF] text-white hover:opacity-90"
                   data-hover
                 >
                   {contactOpen ? t("footer.close") : t("footer.getInTouch")}
@@ -578,7 +664,7 @@ export default function Home() {
                   open={contactOpen}
                   dark={dark}
                   reducedMotion={reducedMotion}
-                  source="lab"
+                  source="home"
                 />
               </div>
 
@@ -610,13 +696,13 @@ export default function Home() {
               </div>
 
               <Link
-                href="/studio"
+                href="/services"
                 className={`inline-block mt-6 text-[11px] uppercase font-medium tracking-widest transition-colors duration-300 ${
                   dark ? "text-neutral-500 hover:text-neutral-300" : "text-neutral-400 hover:text-neutral-600"
                 }`}
                 data-hover
               >
-                {t("footer.studioLink")}
+                {t("footer.servicesLink")}
               </Link>
 
               <p
@@ -625,7 +711,7 @@ export default function Home() {
                 }`}
                 style={{ letterSpacing: "0.12em" }}
               >
-                {t("footer.studioAddress")}
+                {t("footer.servicesAddress")}
               </p>
               </div>
             </footer>
