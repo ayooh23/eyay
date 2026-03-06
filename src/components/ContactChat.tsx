@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, useCallback } from "react"
 import gsap from "gsap"
 import { MessageBubble } from "@/components/MessageBubble"
 import { TypingIndicator } from "@/components/TypingIndicator"
+import { useLocale } from "@/contexts/LocaleContext"
 
 interface ContactChatProps {
   open: boolean
@@ -25,7 +26,7 @@ interface ChatHistoryItem {
 
 const introTimeline = [
   { type: "typing" as const, at: 400 },
-  { type: "message" as const, text: "hey!", at: 1400 },
+  { type: "message" as const, messageKey: "contact.hey", at: 1400 },
   { type: "typing" as const, at: 2000 },
 ]
 
@@ -33,6 +34,7 @@ export function ContactChat({ open, dark, reducedMotion, source = "lab" }: Conta
   const wrapperRef = useRef<HTMLDivElement>(null)
   const innerRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
+  const { t } = useLocale()
 
   const [displayMessages, setDisplayMessages] = useState<DisplayMessage[]>([])
   const [typing, setTyping] = useState(false)
@@ -116,20 +118,20 @@ export function ContactChat({ open, dark, reducedMotion, source = "lab" }: Conta
     setHasPlayed(true)
 
     const timers: ReturnType<typeof setTimeout>[] = []
-    const secondText = source === "studio" ? "tell me about your project" : "tell us about your idea"
+    const secondMessageKey = source === "studio" ? "contact.introStudio" : "contact.introLab"
 
     introTimeline.forEach((event) => {
-      const t = setTimeout(() => {
+      const tmr = setTimeout(() => {
         if (event.type === "typing") setTyping(true)
-        if (event.type === "message") {
+        if (event.type === "message" && "messageKey" in event) {
           setTyping(false)
           setDisplayMessages((prev) => [
             ...prev,
-            { id: Date.now(), sender: "sinyo", text: event.text },
+            { id: Date.now(), sender: "sinyo", text: t(event.messageKey) },
           ])
         }
       }, event.at)
-      timers.push(t)
+      timers.push(tmr)
     })
 
     // Second intro message
@@ -137,7 +139,7 @@ export function ContactChat({ open, dark, reducedMotion, source = "lab" }: Conta
       setTyping(false)
       setDisplayMessages((prev) => [
         ...prev,
-        { id: Date.now() + 1, sender: "sinyo", text: secondText },
+        { id: Date.now() + 1, sender: "sinyo", text: t(secondMessageKey) },
       ])
     }, 3200)
     timers.push(t2)
@@ -146,7 +148,7 @@ export function ContactChat({ open, dark, reducedMotion, source = "lab" }: Conta
     timers.push(tInput)
 
     return () => timers.forEach(clearTimeout)
-  }, [open, hasPlayed, source])
+  }, [open, hasPlayed, source, t])
 
   // ─── Focus input when it appears ────────────────────────
   useEffect(() => {
@@ -212,11 +214,11 @@ export function ContactChat({ open, dark, reducedMotion, source = "lab" }: Conta
       setTyping(false)
       setLoading(false)
       // Fallback to mailto if API unavailable
-      const subject = encodeURIComponent("New idea")
+      const subject = encodeURIComponent(t("contact.mailtoSubject"))
       const body = encodeURIComponent(text)
       window.open(`mailto:hello@eyay.studio?subject=${subject}&body=${body}`, "_blank")
     }
-  }, [input, loading])
+  }, [input, loading, t])
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -259,7 +261,7 @@ export function ContactChat({ open, dark, reducedMotion, source = "lab" }: Conta
                 value={input}
                 onChange={handleInputChange}
                 onKeyDown={handleKeyDown}
-                placeholder="type your idea…"
+                placeholder={t("contact.placeholder")}
                 rows={1}
                 disabled={loading}
                 className={`flex-1 resize-none rounded-2xl px-4 py-3 text-[15px] leading-[1.35] outline-none transition-colors duration-300 ${
@@ -282,7 +284,7 @@ export function ContactChat({ open, dark, reducedMotion, source = "lab" }: Conta
                       : "bg-neutral-100 text-neutral-400"
                 }`}
                 data-hover
-                aria-label="Send message"
+                aria-label={t("contact.sendAria")}
               >
                 {loading ? (
                   <svg className="animate-spin" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

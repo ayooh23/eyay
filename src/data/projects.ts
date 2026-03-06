@@ -22,7 +22,7 @@ export const projects: Project[] = [
   {
     id: "project-2",
     name: "BR-ND People",
-    tag: "…reflects a driven agency better",
+    tag: "…truly reflects a creative change agency",
     gradient: "from-neutral-400 to-neutral-600",
     media: "/content/Website-Refresh-BR-NDPeople.mp4",
     aspectRatio: "16:9",
@@ -70,6 +70,13 @@ export const projects: Project[] = [
     tag: "…makes your service feel as good as it is",
     gradient: "from-neutral-400 to-neutral-700",
     aspectRatio: "4:5",
+  },
+  {
+    id: "project-9",
+    name: "Untangle",
+    tag: "…helps users choose action over reassurance?",
+    gradient: "from-neutral-300 to-neutral-600",
+    aspectRatio: "16:9",
   },
 ]
 
