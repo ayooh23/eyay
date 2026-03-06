@@ -14,7 +14,7 @@ function buildMessages() {
   return [
     { id: 1, sender: "sinyo" as const, text: "Ey ay", time: "01:23" },
     { id: 2, sender: "ayu" as const, text: "Yo sin", time: "06:46" },
-    { id: 3, sender: "sinyo" as const, text: "what if we build something that\u2026", time: "11:18" },
+    { id: 3, sender: "sinyo" as const, text: "what if we create something that\u2026", time: "11:18" },
   ]
 }
 

@@ -11,7 +11,7 @@ export interface Project {
 export const projects: Project[] = [
   {
     id: "project-1",
-    name: "Vaultflow",
+    name: "Speakeasy",
     tag: "\u2026promotes evolving language",
     gradient: "from-neutral-300 to-neutral-500",
     height: 220,
@@ -19,7 +19,7 @@ export const projects: Project[] = [
   },
   {
     id: "project-2",
-    name: "Mosaic",
+    name: "Cultuurbehoud",
     tag: "\u2026preserves culture",
     gradient: "from-neutral-400 to-neutral-700",
     height: 280,
@@ -27,7 +27,7 @@ export const projects: Project[] = [
   },
   {
     id: "project-3",
-    name: "Pulse",
+    name: "-",
     tag: "coming soon",
     gradient: "from-neutral-200 to-neutral-400",
     height: 200,
@@ -35,7 +35,7 @@ export const projects: Project[] = [
   },
   {
     id: "project-4",
-    name: "Onyx",
+    name: "23plusone dashboard",
     tag: "\u2026challenges happiness scans",
     gradient: "from-neutral-500 to-neutral-800",
     height: 260,
@@ -43,7 +43,7 @@ export const projects: Project[] = [
   },
   {
     id: "project-5",
-    name: "Arclight",
+    name: "GEO Search",
     tag: "\u2026improves search finds",
     gradient: "from-neutral-300 to-neutral-600",
     height: 240,
@@ -51,8 +51,8 @@ export const projects: Project[] = [
   },
   {
     id: "project-6",
-    name: "Terrain",
-    tag: "coming soon",
+    name: "-",
+    tag: "...",
     gradient: "from-neutral-200 to-neutral-500",
     height: 190,
     shift: "right",
