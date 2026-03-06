@@ -9,7 +9,6 @@
     "2": "Yo sin",
     "3": "what if we create something that…"
   },
-  "studio": "Studio →",
   "footer": {
     "headline": "Your idea from this morning, built today.",
     "subheadline": "From MVP to shipped product. From consumer apps to internal workflows.",
@@ -17,6 +16,7 @@
     "close": "Close",
     "founded": "founded",
     "builders": "builders",
+    "team": "team",
     "selfInitiated": "self-initiated",
     "studioLink": "Studio →",
     "studioAddress": "eyay.studio — Amsterdam"
@@ -32,10 +32,89 @@
     "project-8": "…makes your service feel as good as it is"
   },
   "galleryServices": {
-    "mvp": "From MVP to shipped product.",
-    "aiFeature": "One AI feature, scoped and shipped.",
-    "sprint": "Research to prototype. No deck, no fluff.",
-    "retainer": "Ongoing senior support. No retainer bloat.",
-    "workflows": "From consumer apps to internal workflows."
+    "mvp": "…takes you from MVP to shipped product",
+    "aiFeature": "…scopes and ships one real AI feature",
+    "sprint": "…turns research into a prototype — no deck, no fluff",
+    "retainer": "…gives you ongoing senior support without the bloat",
+    "workflows": "…spans consumer apps and internal workflows"
+  },
+  "contact": {
+    "hey": "hey!",
+    "introLab": "tell us about your idea",
+    "introStudio": "tell me about your project",
+    "placeholder": "type your idea…",
+    "mailtoSubject": "New idea",
+    "sendAria": "Send message"
+  },
+  "studioPage": {
+    "heroSubtitle": "eyay.studio · Amsterdam",
+    "heroTitle1": "We build with AI.",
+    "heroTitle2": "Not just about it.",
+    "heroDescription": "A digital product studio in Amsterdam. Three people delivering what used to take ten — faster iteration, higher output, senior-level quality.",
+    "sectionWhatWeSolve": "What we solve",
+    "sectionPricing": "Pricing & process",
+    "pricingHeadline": "Transparent pricing. Flat fees. No surprises.",
+    "from": "From",
+    "projectTime": "Project time:",
+    "whyCost": "Why does this cost / take this long?",
+    "hide": "Hide",
+    "whatYouGet": "What you get",
+    "discussProject": "Discuss this project →",
+    "sectionTeam": "The team",
+    "sectionSelectedBuilds": "Selected builds",
+    "moreWorkNda": "More work available on request — some projects are under NDA.",
+    "footerAddress": "eyay.studio · Amsterdam, NL",
+    "chatBubbles": {
+      "0": { "problem": "Our website doesn't reflect the quality of our business.", "solution": "Premium site — designed, built, and shipped." },
+      "1": { "problem": "My team wastes hours on repetitive manual work.", "solution": "Internal tool that automates the workflow." },
+      "2": { "problem": "We need a product but have no tech team.", "solution": "Full MVP — concept to launch, one team." },
+      "3": { "problem": "We know AI could help but don't know where to start.", "solution": "One practical AI feature, scoped and shipped." }
+    },
+    "pillars": {
+      "01": { "title": "AI-Native Workflow", "desc": "AI accelerates every stage — design, code, iteration, QA. More output, fewer people, faster delivery." },
+      "02": { "title": "End-to-End Ownership", "desc": "One team from research to production. No handoffs, no middlemen. The people you meet are the people who build." },
+      "03": { "title": "Cutting-Edge Stack", "desc": "Next.js, TypeScript, Tailwind, Vercel, Supabase. Built for performance and maintainability. No legacy from day one." }
+    },
+    "team": {
+      "ayu": { "role": "Design & Strategy" },
+      "sinyo": { "role": "Development & AI" },
+      "alexander": { "role": "Senior Advisor" }
+    },
+    "selectedBuilds": {
+      "do": { "tag": "Emergency care platform · OLVG Amsterdam" },
+      "brnd": { "tag": "Brand website with motion storytelling" },
+      "vanvulpen": { "tag": "Culture film · 1,300 employees" },
+      "23plusone": { "tag": "Happiness scan · digital assessment product" }
+    },
+    "services": {
+      "sprint": {
+        "label": "Design Sprint",
+        "timeline": "2–3 weeks",
+        "tagline": "Research to prototype. No deck, no fluff.",
+        "deliverables": ["UX audit of existing product or brief", "Redesign proposal with rationale", "Interactive prototype (Figma or live)", "Handoff-ready for development"],
+        "rationale": "Most studios take 6 weeks to deliver a prototype — half that time is internal reviews, junior revisions, and slide decks. We take 2–3 weeks because AI compresses research synthesis, copy variants, and iteration loops that used to eat entire sprints. You get a senior designer's full attention and a production-ready prototype. One flat fee. No surprises."
+      },
+      "build": {
+        "label": "Build & Launch",
+        "timeline": "4–12 weeks",
+        "tagline": "From concept to shipped product. End to end.",
+        "deliverables": ["Full UX/UI design system", "Production-grade development (Next.js, TypeScript)", "Deployed and live on your infrastructure", "One team from first call to launch — no handoffs"],
+        "rationale": "A full agency charges €30k+ and takes a quarter. We charge a fraction of that and ship in weeks — because we've removed the overhead: no account managers, no handoffs, no legacy process. AI handles what used to require three junior developers. You pay for the outcome, not our calendar. Flat fee. No scope creep."
+      },
+      "ai": {
+        "label": "AI Feature",
+        "timeline": "2–4 weeks",
+        "tagline": "One real AI feature. Scoped tight, shipped fast.",
+        "deliverables": ["Scoping session — what to build and why", "One production-ready AI feature in your product", "Integration with your existing stack", "Documentation and handoff"],
+        "rationale": "Most 'AI integrations' are wrappers with a chatbot. We scope and ship a feature that actually changes how your product works — automated reporting, smart search, a workflow that replaces manual hours. We know what AI is genuinely good at and what it isn't. You get practical output, not a proof of concept."
+      },
+      "retainer": {
+        "label": "Retainer",
+        "timeline": "Ongoing",
+        "tagline": "Ongoing senior support. No retainer bloat.",
+        "deliverables": ["Flexible monthly design and development scope", "Priority response and direct access to the team", "Weekly check-in, async or call", "Scales up when you need it, honest when you don't"],
+        "rationale": "Most retainers are padded with hours that don't move the needle. Ours aren't. We work fast because of how we're built — AI compresses the repetitive work, so every hour goes into things that actually matter. You get senior-level output without senior-agency overhead. Cancel anytime."
+      }
+    }
   }
 }

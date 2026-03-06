@@ -2,13 +2,13 @@
   "loader": {
     "suffix": "waar ideeën vandaag worden gebouwd"
   },
+  "studio": "Studio →",
+  "lab": "Lab",
   "messages": {
     "1": "Ey ay",
     "2": "Yo sin",
     "3": "Wat als we iets maken wat..."
   },
-  "studio": "Studio →",
-  "lab": "Lab",
   "footer": {
     "headline": "Je idee van vanmorgen, vandaag gebouwd.",
     "subheadline": "Van MVP tot gelanceerd product. Van consumentenapp tot interne workflows.",
@@ -16,6 +16,7 @@
     "close": "Sluiten",
     "founded": "opgericht",
     "builders": "bouwers",
+    "team": "team",
     "selfInitiated": "zelf geïnitieerd",
     "studioLink": "Studio →",
     "studioAddress": "eyay.studio — Amsterdam"
@@ -31,10 +32,89 @@
     "project-8": "…je dienst voelbaar beter maakt"
   },
   "galleryServices": {
-    "mvp": "Van MVP tot gelanceerd product.",
-    "aiFeature": "Eén AI-feature, afgebakend en opgeleverd.",
-    "sprint": "Onderzoek tot prototype. Geen deck, geen poespas.",
-    "retainer": "Doorlopende senior support. Geen opgeblazen retainer.",
-    "workflows": "Van consumentenapp tot interne workflows."
+    "mvp": "…brengt je van MVP tot gelanceerd product",
+    "aiFeature": "…scopt en levert één echte AI-feature",
+    "sprint": "…maakt van onderzoek een prototype — geen deck, geen poespas",
+    "retainer": "…geeft je doorlopende senior support zonder opgeblazen retainer",
+    "workflows": "…consumentenapps en interne workflows omspant"
+  },
+  "contact": {
+    "hey": "hey!",
+    "introLab": "vertel over je idee",
+    "introStudio": "vertel over je project",
+    "placeholder": "typ je idee…",
+    "mailtoSubject": "Nieuw idee",
+    "sendAria": "Bericht versturen"
+  },
+  "studioPage": {
+    "heroSubtitle": "eyay.studio · Amsterdam",
+    "heroTitle1": "We bouwen met AI.",
+    "heroTitle2": "Niet alleen erover.",
+    "heroDescription": "Een digital product studio in Amsterdam. Drie mensen leveren wat tien deed — snellere iteratie, meer resultaat, senior kwaliteit.",
+    "sectionWhatWeSolve": "Wat we oplossen",
+    "sectionPricing": "Pricing & proces",
+    "pricingHeadline": "Transparante pricing. Vaste prijzen. Geen verrassingen.",
+    "from": "Vanaf",
+    "projectTime": "Projectduur:",
+    "whyCost": "Waarom kost / duurt dit zoveel?",
+    "hide": "Verbergen",
+    "whatYouGet": "Wat je krijgt",
+    "discussProject": "Bespreken we dit project →",
+    "sectionTeam": "Het team",
+    "sectionSelectedBuilds": "Selectie werk",
+    "moreWorkNda": "Meer werk op aanvraag — sommige projecten vallen onder NDA.",
+    "footerAddress": "eyay.studio · Amsterdam, NL",
+    "chatBubbles": {
+      "0": { "problem": "Onze website weerspiegelt de kwaliteit van ons bedrijf niet.", "solution": "Premium site — ontworpen, gebouwd en opgeleverd." },
+      "1": { "problem": "Mijn team verspilt uren aan repeterend handwerk.", "solution": "Intern tool dat het werk automatiseert." },
+      "2": { "problem": "We hebben een product nodig maar geen tech team.", "solution": "Volledige MVP — van concept tot launch, één team." },
+      "3": { "problem": "We weten dat AI kan helpen maar niet waar te beginnen.", "solution": "Eén praktische AI-feature, afgebakend en opgeleverd." }
+    },
+    "pillars": {
+      "01": { "title": "AI-Native Workflow", "desc": "AI versnelt elke fase — design, code, iteratie, QA. Meer output, minder mensen, snellere levering." },
+      "02": { "title": "End-to-End Ownership", "desc": "Eén team van onderzoek tot productie. Geen overdrachten, geen tussenpersonen. De mensen die je spreekt bouwen ook." },
+      "03": { "title": "Cutting-Edge Stack", "desc": "Next.js, TypeScript, Tailwind, Vercel, Supabase. Gebouwd voor performance en onderhoud. Geen legacy vanaf dag één." }
+    },
+    "team": {
+      "ayu": { "role": "Design & Strategie" },
+      "sinyo": { "role": "Development & AI" },
+      "alexander": { "role": "Senior Advisor" }
+    },
+    "selectedBuilds": {
+      "do": { "tag": "Spoedzorgplatform · OLVG Amsterdam" },
+      "brnd": { "tag": "Merkenwebsite met motion storytelling" },
+      "vanvulpen": { "tag": "Cultuurfilm · 1.300 medewerkers" },
+      "23plusone": { "tag": "Geluksscan · digitaal assessmentproduct" }
+    },
+    "services": {
+      "sprint": {
+        "label": "Design Sprint",
+        "timeline": "2–3 weken",
+        "tagline": "Onderzoek tot prototype. Geen deck, geen poespas.",
+        "deliverables": ["UX-audit van bestaand product of brief", "Redesignvoorstel met onderbouwing", "Interactief prototype (Figma of live)", "Handoff-klaar voor development"],
+        "rationale": "De meeste studios doen 6 weken over een prototype — de helft daarvan gaat op aan interne reviews, junior-revisies en slide decks. Wij doen 2–3 weken omdat AI research synthesis, copy-varianten en iteratielussen comprimeert. Je krijgt de volle aandacht van een senior designer en een productie-klaar prototype. Eén vast bedrag. Geen verrassingen."
+      },
+      "build": {
+        "label": "Build & Launch",
+        "timeline": "4–12 weken",
+        "tagline": "Van concept tot gelanceerd product. Van A tot Z.",
+        "deliverables": ["Volledig UX/UI design system", "Productie-grade development (Next.js, TypeScript)", "Live op jouw infrastructuur", "Eén team van eerste gesprek tot launch — geen overdrachten"],
+        "rationale": "Een volwaardig bureau rekent €30k+ en doet een kwartaal. Wij rekenen een fractie en leveren in weken — omdat we de overhead hebben weggehaald: geen accountmanagers, geen overdrachten, geen legacy process. AI doet wat vroeger drie junior developers kostte. Je betaalt voor het resultaat, niet voor onze agenda. Vaste prijs. Geen scope creep."
+      },
+      "ai": {
+        "label": "AI Feature",
+        "timeline": "2–4 weken",
+        "tagline": "Eén echte AI-feature. Strak afgebakend, snel opgeleverd.",
+        "deliverables": ["Scoping-sessie — wat bouwen en waarom", "Eén productie-klare AI-feature in je product", "Integratie met je bestaande stack", "Documentatie en handoff"],
+        "rationale": "De meeste 'AI-integraties' zijn wrappers met een chatbot. Wij scopen en bouwen een feature die echt iets verandert aan je product — geautomatiseerde rapportage, slim zoeken, een workflow die handmatige uren vervangt. We weten waar AI goed in is en waar niet. Je krijgt praktisch resultaat, geen proof of concept."
+      },
+      "retainer": {
+        "label": "Retainer",
+        "timeline": "Doorlopend",
+        "tagline": "Doorlopende senior support. Geen opgeblazen retainer.",
+        "deliverables": ["Flexibele maandelijkse design- en development scope", "Prioriteit en directe toegang tot het team", "Wekelijkse check-in, async of call", "Schaalt op wanneer nodig, eerlijk wanneer niet"],
+        "rationale": "De meeste retainers zitten vol met uren die geen verschil maken. Die van ons niet. We werken snel door hoe we zijn opgezet — AI comprimeert het repeterende werk, dus elke uur gaat naar wat er toe doet. Senior output zonder senior-bureau overhead. Altijd opzegbaar."
+      }
+    }
   }
 }
