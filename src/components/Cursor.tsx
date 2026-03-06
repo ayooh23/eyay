@@ -150,14 +150,14 @@ export function Cursor({ dark }: { dark: boolean }) {
         }}
       />
 
-      {/* Tag — hover project card: rectangle with title, no caps */}
+      {/* Tag — hover project/service card: blue with white text in all modes */}
       <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
         <div
           ref={tagRef}
           className="origin-center whitespace-nowrap rounded-md px-2.5 py-1.5 text-[13px] font-medium"
           style={{
-            backgroundColor: dark ? "#fff" : "#0000FF",
-            color: dark ? "#0000FF" : "white",
+            backgroundColor: "#0000FF",
+            color: "white",
             scale: 0,
             opacity: 0,
           }}

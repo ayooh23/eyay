@@ -9,6 +9,7 @@ import { MessageBubble } from "@/components/MessageBubble"
 import { ProjectCard } from "@/components/ProjectCard"
 import { getGalleryItems } from "@/data/projects"
 import { ContactChat } from "@/components/ContactChat"
+import ScrambleHover from "@/components/fancy/text/scramble-hover"
 import { useLocale } from "@/contexts/LocaleContext"
 
 // ─── Chat timeline data ──────────────────────────────────────
@@ -431,7 +432,12 @@ export default function Home() {
           }`}
           data-hover
         >
-          {t("services")}
+          <ScrambleHover
+            text={t("services")}
+            scrambleSpeed={60}
+            maxIterations={6}
+            useOriginalCharsOnly={true}
+          />
         </Link>
       </header>
 
