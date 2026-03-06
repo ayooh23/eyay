@@ -1,0 +1,40 @@
+{
+  "loader": {
+    "suffix": "waar ideeën vandaag worden gebouwd"
+  },
+  "messages": {
+    "1": "Ey ay",
+    "2": "Yo sin",
+    "3": "Wat als we iets maken wat..."
+  },
+  "studio": "Studio →",
+  "lab": "Lab",
+  "footer": {
+    "headline": "Je idee van vanmorgen, vandaag gebouwd.",
+    "subheadline": "Van MVP tot gelanceerd product. Van consumentenapp tot interne workflows.",
+    "getInTouch": "Neem contact op →",
+    "close": "Sluiten",
+    "founded": "opgericht",
+    "builders": "bouwers",
+    "selfInitiated": "zelf geïnitieerd",
+    "studioLink": "Studio →",
+    "studioAddress": "eyay.studio — Amsterdam"
+  },
+  "projectTags": {
+    "project-1": "…een bewegende taal ondersteunt",
+    "project-2": "…een gedreven agency beter reflecteert",
+    "project-3": "…geluksmetingen onderzoekt",
+    "project-4": "…spoedhulp toegankelijker maakt",
+    "project-5": "…zoeken en vinden verbetert",
+    "project-6": "…cultuur voor de volgende generatie bewaart",
+    "project-7": "…handmatig werk overneemt",
+    "project-8": "…je dienst voelbaar beter maakt"
+  },
+  "galleryServices": {
+    "mvp": "Van MVP tot gelanceerd product.",
+    "aiFeature": "Eén AI-feature, afgebakend en opgeleverd.",
+    "sprint": "Onderzoek tot prototype. Geen deck, geen poespas.",
+    "retainer": "Doorlopende senior support. Geen opgeblazen retainer.",
+    "workflows": "Van consumentenapp tot interne workflows."
+  }
+}

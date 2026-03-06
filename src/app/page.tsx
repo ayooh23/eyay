@@ -7,15 +7,16 @@ import { Cursor } from "@/components/Cursor"
 import { TypingIndicator } from "@/components/TypingIndicator"
 import { MessageBubble } from "@/components/MessageBubble"
 import { ProjectCard } from "@/components/ProjectCard"
-import { projects } from "@/data/projects"
+import { getGalleryItems } from "@/data/projects"
 import { ContactChat } from "@/components/ContactChat"
+import { useLocale } from "@/contexts/LocaleContext"
 
 // ─── Chat timeline data ──────────────────────────────────────
 function buildMessages() {
   return [
-    { id: 1, sender: "sinyo" as const, text: "Ey ay", time: "01:23" },
-    { id: 2, sender: "ayu" as const, text: "Yo sin", time: "06:46" },
-    { id: 3, sender: "sinyo" as const, text: "what if we create something that\u2026", time: "11:18" },
+    { id: 1, sender: "sinyo" as const, time: "01:23" },
+    { id: 2, sender: "ayu" as const, time: "06:46" },
+    { id: 3, sender: "sinyo" as const, time: "11:18" },
   ]
 }
 
@@ -35,10 +36,12 @@ const timeline = [
 // ─── Loader ──────────────────────────────────────────────────
 function Loader({
   dark,
+  suffix,
   onDone,
   reducedMotion,
 }: {
   dark: boolean
+  suffix: string
   onDone: () => void
   reducedMotion: boolean
 }) {
@@ -46,7 +49,6 @@ function Loader({
   const textRef = useRef<HTMLSpanElement>(null)
   const cursorRef = useRef<HTMLSpanElement>(null)
   const prompt = "➜  eyay: "
-  const suffix = "where ideas get built today"
 
   useEffect(() => {
     if (reducedMotion) {
@@ -78,7 +80,7 @@ function Loader({
     }
 
     return () => clearInterval(interval)
-  }, [onDone, reducedMotion])
+  }, [onDone, reducedMotion, suffix])
 
   return (
     <div
@@ -111,6 +113,7 @@ function Loader({
 
 // ─── Main page ───────────────────────────────────────────────
 const THEME_KEY = "eyay-dark"
+const VISITED_KEY = "eyay-visited"
 
 function getInitialDark(): boolean {
   if (typeof window === "undefined") return false
@@ -120,10 +123,17 @@ function getInitialDark(): boolean {
   return window.matchMedia("(prefers-color-scheme: dark)").matches
 }
 
+function isReturnVisit(): boolean {
+  if (typeof window === "undefined") return false
+  return !!sessionStorage.getItem(VISITED_KEY)
+}
+
 export default function Home() {
   const [dark, setDark] = useState(false)
   const [themeReady, setThemeReady] = useState(false)
+  const [sessionChecked, setSessionChecked] = useState(false)
   const [phase, setPhase] = useState<"loading" | "chat" | "gallery">("loading")
+  const { locale, setLocale, t } = useLocale()
   const [visibleMessages, setVisibleMessages] = useState<number[]>([])
   const [typingSender, setTypingSender] = useState<string | null>(null)
   const [readMessages, setReadMessages] = useState<Set<number>>(new Set())
@@ -132,9 +142,10 @@ export default function Home() {
   const footerRef = useRef<HTMLDivElement>(null)
   const galleryScrollRef = useRef<HTMLDivElement>(null)
   const galleryCardRefs = useRef<(HTMLDivElement | null)[]>([])
-  const [activeProjectIndex, setActiveProjectIndex] = useState(0)
+  const [activeGalleryIndex, setActiveGalleryIndex] = useState(0)
 
   const messages = useMemo(() => buildMessages(), [])
+  const galleryItems = useMemo(() => getGalleryItems(), [])
 
   const [reducedMotion, setReducedMotion] = useState(false)
   const [isDesktop, setIsDesktop] = useState(false)
@@ -144,10 +155,18 @@ export default function Home() {
     setIsDesktop(window.matchMedia("(pointer: fine)").matches)
   }, [])
 
-  // Sync dark mode with user preference (localStorage + system) on mount
+  // Sync dark mode with user preference (localStorage + system) on mount.
+  // On return visit (reload), skip loader and show hero + gallery immediately.
   useEffect(() => {
     setDark(getInitialDark())
     setThemeReady(true)
+    if (isReturnVisit()) {
+      setPhase("gallery")
+      setVisibleMessages([1, 2, 3])
+      setReadMessages(new Set([2, 3]))
+      setShowGallery(true)
+    }
+    setSessionChecked(true)
   }, [])
 
   const handleToggleDark = useCallback(() => {
@@ -158,8 +177,9 @@ export default function Home() {
     })
   }, [])
 
-  // Loader done → clip-path wipe exit, then start chat
+  // Loader done → clip-path wipe exit, then start chat. Mark session as visited for reloads.
   const handleLoaderDone = useCallback(() => {
+    if (typeof sessionStorage !== "undefined") sessionStorage.setItem(VISITED_KEY, "1")
     const loaderEl = document.querySelector("[data-loader]") as HTMLElement
     if (!loaderEl) {
       setPhase("chat")
@@ -240,7 +260,7 @@ export default function Home() {
         best = i
       }
     })
-    setActiveProjectIndex(best)
+    setActiveGalleryIndex(best)
   }, [])
 
   useEffect(() => {
@@ -293,6 +313,36 @@ export default function Home() {
     return () => observer.disconnect()
   }, [showGallery, reducedMotion])
 
+  // When opening contact: scroll footer into view so section is fully visible
+  useEffect(() => {
+    if (!contactOpen || !footerRef.current) return
+    const footer = footerRef.current
+    const t = requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        footer.scrollIntoView({ behavior: "smooth", block: "start" })
+      })
+    })
+    return () => cancelAnimationFrame(t)
+  }, [contactOpen])
+
+  // When contact is open: close on scroll up (footer leaves viewport upward)
+  useEffect(() => {
+    if (!contactOpen) return
+    let lastScrollY = typeof window !== "undefined" ? window.scrollY : 0
+    const onScroll = () => {
+      const y = window.scrollY
+      if (y < lastScrollY) {
+        const footer = footerRef.current
+        if (footer && footer.getBoundingClientRect().top < -60) {
+          setContactOpen(false)
+        }
+      }
+      lastScrollY = y
+    }
+    window.addEventListener("scroll", onScroll, { passive: true })
+    return () => window.removeEventListener("scroll", onScroll)
+  }, [contactOpen])
+
   return (
     <div
       className={`min-h-screen transition-colors duration-500 ${
@@ -317,46 +367,74 @@ export default function Home() {
           />
         </div>
 
-        <div className="flex items-center gap-3">
-          <Link
-            href="/studio"
-            className={`text-[11px] uppercase font-medium tracking-widest transition-colors duration-300 ${
-              dark ? "text-neutral-500 hover:text-neutral-300" : "text-neutral-400 hover:text-neutral-600"
-            }`}
-            data-hover
-          >
-            Studio &rarr;
-          </Link>
-          <button
-            onClick={handleToggleDark}
-            className={`w-9 h-9 flex items-center justify-center rounded-full transition-colors duration-300 ${
-              dark
-                ? "bg-neutral-800 text-neutral-300"
-                : "bg-neutral-100 text-neutral-600"
-            }`}
-            data-hover
-            aria-label="Toggle dark mode"
-          >
-            <DarkModeIcon dark={dark} />
-          </button>
-        </div>
+        <Link
+          href="/studio"
+          className={`text-[11px] uppercase font-medium tracking-widest transition-colors duration-300 ${
+            dark ? "text-neutral-500 hover:text-neutral-300" : "text-neutral-400 hover:text-neutral-600"
+          }`}
+          data-hover
+        >
+          {t("studio")}
+        </Link>
       </header>
 
-      {/* ─── Loader ─── */}
-      {phase === "loading" && themeReady && (
-        <Loader dark={dark} onDone={handleLoaderDone} reducedMotion={reducedMotion} />
+      {/* ─── Bottom toggles: theme + language ─── */}
+      <div
+        className="fixed bottom-0 left-0 right-0 z-40 flex items-center justify-center gap-4 px-5 py-4"
+      >
+        <button
+          onClick={handleToggleDark}
+          className={`flex items-center justify-center rounded-full w-9 h-9 transition-colors duration-300 ${
+            dark
+              ? "bg-neutral-800 text-neutral-300 hover:bg-neutral-700"
+              : "bg-neutral-100 text-neutral-600 hover:bg-neutral-200"
+          }`}
+          data-hover
+          aria-label="Toggle dark mode"
+        >
+          <DarkModeIcon dark={dark} />
+        </button>
+        <div
+          className={`flex items-center rounded-full text-[12px] font-medium ${
+            dark ? "bg-neutral-800 text-neutral-400" : "bg-neutral-100 text-neutral-500"
+          }`}
+        >
+          <button
+            onClick={() => setLocale("en")}
+            className={`px-3 py-2 rounded-full transition-colors duration-200 ${
+              locale === "en" ? (dark ? "text-white bg-neutral-700" : "text-neutral-900 bg-neutral-200") : ""
+            }`}
+            data-hover
+          >
+            EN
+          </button>
+          <button
+            onClick={() => setLocale("nl")}
+            className={`px-3 py-2 rounded-full transition-colors duration-200 ${
+              locale === "nl" ? (dark ? "text-white bg-neutral-700" : "text-neutral-900 bg-neutral-200") : ""
+            }`}
+            data-hover
+          >
+            NL
+          </button>
+        </div>
+      </div>
+
+      {/* ─── Loader (only on first visit in this session) ─── */}
+      {phase === "loading" && themeReady && sessionChecked && (
+        <Loader dark={dark} suffix={t("loader.suffix")} onDone={handleLoaderDone} reducedMotion={reducedMotion} />
       )}
 
       {/* ─── Chat + Gallery + Footer ─── */}
       {(phase === "chat" || phase === "gallery") && (
-        <main className="pt-24 pb-8 px-5 max-w-3xl mx-auto">
+        <main className="pt-24 pb-24 px-5 max-w-3xl mx-auto">
           {/* iMessage chat */}
           <div className="max-w-md mx-auto flex flex-col gap-0">
             {messages.map((msg) =>
               visibleMessages.includes(msg.id) ? (
                 <MessageBubble
                   key={msg.id}
-                  text={msg.text}
+                  text={t(`messages.${msg.id}`)}
                   sender={msg.sender}
                   time={msg.time}
                   dark={dark}
@@ -377,7 +455,13 @@ export default function Home() {
                       ${dark ? "bg-neutral-800 text-white" : "bg-neutral-100 text-neutral-900"}
                     `}
                   >
-                    {projects[activeProjectIndex]?.tag ?? ""}
+                    {(() => {
+                      const item = galleryItems[activeGalleryIndex]
+                      if (!item) return null
+                      return item.type === "project"
+                        ? t(`projectTags.${item.project.id}`)
+                        : t(item.tagKey)
+                    })()}
                   </div>
                   <div className={`flex items-center gap-1 mt-0.5 text-[11px] justify-start ${dark ? "text-neutral-600" : "text-neutral-400"}`}>
                     <span>11:18</span>
@@ -414,21 +498,35 @@ export default function Home() {
                   scrollPaddingRight: "calc((100vw - 360px) / 2)",
                 }}
               >
-                {projects.map((project, i) => (
+                {galleryItems.map((item, i) => (
                   <div
-                    key={project.id}
+                    key={item.type === "project" ? item.project.id : item.tagKey}
                     ref={(el) => { galleryCardRefs.current[i] = el }}
                     className="shrink-0 snap-center"
                   >
-                    <ProjectCard
-                      name={project.name}
-                      tag={project.tag}
-                      gradient={project.gradient}
-                      dark={dark}
-                      index={i}
-                      reducedMotion={reducedMotion}
-                      media={project.media}
-                    />
+                    {item.type === "project" ? (
+                      <ProjectCard
+                        name={item.project.name}
+                        tag={item.project.tag}
+                        gradient={item.project.gradient}
+                        dark={dark}
+                        index={i}
+                        reducedMotion={reducedMotion}
+                        media={item.project.media}
+                        aspectRatio={item.project.aspectRatio ?? "16:9"}
+                      />
+                    ) : (
+                      <ProjectCard
+                        name=""
+                        tag={t(item.tagKey)}
+                        gradient={item.gradient}
+                        dark={dark}
+                        index={i}
+                        reducedMotion={reducedMotion}
+                        aspectRatio={item.aspectRatio}
+                        isPlaceholder
+                      />
+                    )}
                   </div>
                 ))}
               </div>
@@ -437,42 +535,59 @@ export default function Home() {
 
           {/* ─── Footer ─── */}
           {showGallery && (
-            <footer ref={footerRef} className="mt-16 mb-12 text-center opacity-0">
-              <h2
-                className={`text-[28px] sm:text-[36px] font-semibold ${
-                  dark ? "text-white" : "text-neutral-900"
-                }`}
-                style={{ letterSpacing: "-0.03em" }}
-              >
-                Your idea from this morning, built today.
-              </h2>
+            <footer
+              ref={footerRef}
+              className={`mt-16 mb-12 text-center opacity-0 ${
+                contactOpen ? "min-h-[80vh] flex flex-col" : ""
+              }`}
+            >
+              <div className={contactOpen ? "shrink-0" : ""}>
+                <h2
+                  className={`text-[28px] sm:text-[36px] font-semibold ${
+                    dark ? "text-white" : "text-neutral-900"
+                  }`}
+                  style={{ letterSpacing: "-0.03em" }}
+                >
+                  {t("footer.headline")}
+                </h2>
 
-              <button
-                onClick={() => setContactOpen((o) => !o)}
-                className={`inline-block mt-5 px-6 py-3 rounded-full text-[15px] font-medium transition-all duration-300 ${
-                  dark
-                    ? "bg-white text-neutral-900 hover:bg-neutral-200"
-                    : "bg-neutral-900 text-white hover:bg-neutral-700"
-                }`}
-                data-hover
-              >
-                {contactOpen ? "Close" : "Get in touch \u2192"}
-              </button>
+                <p
+                  className={`mt-4 text-[15px] sm:text-[16px] leading-relaxed max-w-xl mx-auto ${
+                    dark ? "text-neutral-400" : "text-neutral-500"
+                  }`}
+                >
+                  {t("footer.subheadline")}
+                </p>
 
-              {/* Inline contact chat — toggles open below the button */}
-              <ContactChat
-                open={contactOpen}
-                dark={dark}
-                reducedMotion={reducedMotion}
-                source="lab"
-              />
+                <button
+                  onClick={() => setContactOpen((o) => !o)}
+                  className={`inline-block mt-5 px-6 py-3 rounded-full text-[15px] font-medium transition-all duration-300 ${
+                    dark
+                      ? "bg-white text-neutral-900 hover:bg-neutral-200"
+                      : "bg-neutral-900 text-white hover:bg-neutral-700"
+                  }`}
+                  data-hover
+                >
+                  {contactOpen ? t("footer.close") : t("footer.getInTouch")}
+                </button>
+              </div>
 
-              {/* Facts */}
-              <div className="flex justify-center gap-8 mt-6">
+              {/* Contact chat — fills remaining viewport height when open */}
+              <div className={contactOpen ? "flex-1 min-h-0 flex flex-col" : ""}>
+                <ContactChat
+                  open={contactOpen}
+                  dark={dark}
+                  reducedMotion={reducedMotion}
+                  source="lab"
+                />
+              </div>
+
+              <div className={contactOpen ? "shrink-0" : ""}>
+                <div className="flex justify-center gap-8 mt-6">
                 {[
-                  { value: "2025", label: "founded" },
-                  { value: "2", label: "builders" },
-                  { value: "100%", label: "self-initiated" },
+                  { value: "2025", label: t("footer.founded") },
+                  { value: "2", label: t("footer.builders") },
+                  { value: "100%", label: t("footer.selfInitiated") },
                 ].map(({ value, label }) => (
                   <div key={label} className="flex flex-col items-center gap-0.5">
                     <span
@@ -501,7 +616,7 @@ export default function Home() {
                 }`}
                 data-hover
               >
-                Studio &rarr;
+                {t("footer.studioLink")}
               </Link>
 
               <p
@@ -510,8 +625,9 @@ export default function Home() {
                 }`}
                 style={{ letterSpacing: "0.12em" }}
               >
-                eyay.studio &mdash; Amsterdam
+                {t("footer.studioAddress")}
               </p>
+              </div>
             </footer>
           )}
         </main>

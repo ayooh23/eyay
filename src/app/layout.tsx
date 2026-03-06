@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import { LocaleProvider } from "@/contexts/LocaleContext"
 import "./globals.css"
 
 export const metadata: Metadata = {
@@ -21,7 +22,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="antialiased" style={{ fontFamily: "system-ui, -apple-system, sans-serif" }}>
-        {children}
+        <LocaleProvider>{children}</LocaleProvider>
       </body>
     </html>
   )

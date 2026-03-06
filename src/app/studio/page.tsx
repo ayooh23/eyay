@@ -3,6 +3,8 @@
 import { useState, useEffect, useRef, useCallback } from "react"
 import Link from "next/link"
 import { ContactChat } from "@/components/ContactChat"
+import { Cursor } from "@/components/Cursor"
+import { useLocale } from "@/contexts/LocaleContext"
 
 // ─── Types ────────────────────────────────────────────────────
 type ServiceKey = "sprint" | "build" | "ai" | "retainer"
@@ -89,22 +91,10 @@ const services: Record<ServiceKey, ServiceData> = {
 const serviceKeys: ServiceKey[] = ["sprint", "build", "ai", "retainer"]
 
 const chatBubbles = [
-  {
-    problem: "Our website doesn't reflect the quality of our business.",
-    solution: "Premium site — designed, built, and shipped.",
-  },
-  {
-    problem: "My team wastes hours on repetitive manual work.",
-    solution: "Internal tool that automates the workflow.",
-  },
-  {
-    problem: "We need a product but have no tech team.",
-    solution: "Full MVP — concept to launch, one team.",
-  },
-  {
-    problem: "We know AI could help but don't know where to start.",
-    solution: "One practical AI feature, scoped and shipped.",
-  },
+  { problem: "Our website doesn't reflect the quality of our business.", solution: "Premium site — designed, built, and shipped." },
+  { problem: "My team wastes hours on repetitive manual work.", solution: "Internal tool that automates the workflow." },
+  { problem: "We need a product but have no tech team.", solution: "Full MVP — concept to launch, one team." },
+  { problem: "We know AI could help but don't know where to start.", solution: "One practical AI feature, scoped and shipped." },
 ]
 
 const teamMembers = [
@@ -120,7 +110,24 @@ const selectedBuilds = [
   { name: "23plusone", tag: "Happiness scan · digital assessment product" },
 ]
 
-// ─── Animated counter hook ────────────────────────────────────
+const pillars = [
+  { num: "01", title: "AI-Native Workflow", desc: "AI accelerates every stage — design, code, iteration, QA. More output, fewer people, faster delivery." },
+  { num: "02", title: "End-to-End Ownership", desc: "One team from research to production. No handoffs, no middlemen. The people you meet are the people who build." },
+  { num: "03", title: "Cutting-Edge Stack", desc: "Next.js, TypeScript, Tailwind, Vercel, Supabase. Built for performance and maintainability. No legacy from day one." },
+]
+
+// ─── Theme (sync with home) ───────────────────────────────────
+const THEME_KEY = "eyay-dark"
+
+function getInitialDark(): boolean {
+  if (typeof window === "undefined") return false
+  const stored = localStorage.getItem(THEME_KEY)
+  if (stored === "true") return true
+  if (stored === "false") return false
+  return window.matchMedia("(prefers-color-scheme: dark)").matches
+}
+
+// ─── Animated counter ──────────────────────────────────────────
 function useAnimatedCounter(target: number, duration: number = 1200) {
   const [value, setValue] = useState(0)
   const rafRef = useRef<number>(0)
@@ -128,18 +135,13 @@ function useAnimatedCounter(target: number, duration: number = 1200) {
   useEffect(() => {
     const start = performance.now()
     const from = 0
-
     function tick(now: number) {
       const elapsed = now - start
       const progress = Math.min(elapsed / duration, 1)
-      // cubic ease out
       const eased = 1 - Math.pow(1 - progress, 3)
       setValue(Math.round(from + (target - from) * eased))
-      if (progress < 1) {
-        rafRef.current = requestAnimationFrame(tick)
-      }
+      if (progress < 1) rafRef.current = requestAnimationFrame(tick)
     }
-
     rafRef.current = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(rafRef.current)
   }, [target, duration])
@@ -147,30 +149,33 @@ function useAnimatedCounter(target: number, duration: number = 1200) {
   return value
 }
 
-// ─── CSS keyframes (injected once) ────────────────────────────
-const keyframesCSS = `
-@keyframes up {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-@keyframes in {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-`
-
-// ─── Main component ───────────────────────────────────────────
+// ─── Main ──────────────────────────────────────────────────────
 export default function StudioPage() {
   const [dark, setDark] = useState(false)
+  const [themeReady, setThemeReady] = useState(false)
+  const [isDesktop, setIsDesktop] = useState(false)
   const [contactOpen, setContactOpen] = useState(false)
   const [activeService, setActiveService] = useState<ServiceKey>("sprint")
   const [showRationale, setShowRationale] = useState(false)
   const [deliverablesKey, setDeliverablesKey] = useState(0)
+  const { locale, setLocale, t } = useLocale()
   const animatedPrice = useAnimatedCounter(services[activeService].priceNum)
 
-  // Read system preference on mount
   useEffect(() => {
-    setDark(window.matchMedia("(prefers-color-scheme: dark)").matches)
+    setDark(getInitialDark())
+    setThemeReady(true)
+  }, [])
+
+  useEffect(() => {
+    setIsDesktop(window.matchMedia("(pointer: fine)").matches)
+  }, [])
+
+  const handleToggleDark = useCallback(() => {
+    setDark((d) => {
+      const next = !d
+      if (typeof window !== "undefined") localStorage.setItem(THEME_KEY, String(next))
+      return next
+    })
   }, [])
 
   const handleServiceSwitch = useCallback((key: ServiceKey) => {
@@ -181,13 +186,6 @@ export default function StudioPage() {
 
   const current = services[activeService]
 
-  // ─── Colors driven by state ──────────────────────────────
-  const bg = dark ? "#0a0a0a" : "#f5f5f0"
-  const fg = dark ? "#f0f0eb" : "#0a0a0a"
-  const muted = dark ? "#525252" : "#888880"
-  const border = dark ? "#222222" : "#ddddd5"
-  const subtle = dark ? "#161616" : "#eceee8"
-
   const formatPrice = (num: number) => {
     if (num >= 1000) {
       const k = num / 1000
@@ -196,460 +194,187 @@ export default function StudioPage() {
     return `€${num}`
   }
 
+  if (!themeReady) {
+    return (
+      <div className="min-h-screen bg-[#0000FF]" aria-hidden="true" />
+    )
+  }
+
   return (
-    <>
-      <style dangerouslySetInnerHTML={{ __html: keyframesCSS }} />
-      <div
-        style={{
-          minHeight: "100vh",
-          background: bg,
-          color: fg,
-          fontFamily: "system-ui, -apple-system, sans-serif",
-          transition: "background 0.4s, color 0.4s",
-        }}
-      >
-        {/* ─── Fixed Nav ─── */}
-        <nav
-          style={{
-            position: "sticky",
-            top: 0,
-            zIndex: 50,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            padding: "16px 20px",
-            backdropFilter: "blur(16px)",
-            WebkitBackdropFilter: "blur(16px)",
-            borderBottom: `1px solid ${border}`,
-            background: dark ? "rgba(10,10,10,0.85)" : "rgba(245,245,240,0.85)",
-          }}
-        >
-          <Link href="/" style={{ textDecoration: "none", color: fg }}>
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start" }}>
-              <span style={{ fontSize: 18, fontWeight: 700, letterSpacing: "-0.02em" }}>eyay</span>
-              <span
-                style={{
-                  width: "2.8ch",
-                  borderBottom: "2px dashed #ef4444",
-                  marginTop: -2,
-                }}
-              />
-            </div>
+    <div
+      className={`min-h-screen bg-[#0000FF] text-white transition-colors duration-500 ${
+        isDesktop ? "cursor-none" : ""
+      }`}
+    >
+      {isDesktop && <Cursor dark={true} />}
+      {/* ─── Fixed header (match home) ─── */}
+      <header className="fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-5 py-4">
+        <div className="flex flex-col items-start">
+          <Link href="/" className="text-[18px] font-bold tracking-tight text-white hover:opacity-90">
+            eyay
           </Link>
+          <span
+            className="border-b-2 border-dashed border-red-500 -mt-0.5"
+            style={{ width: "2.8ch" }}
+          />
+        </div>
+        <Link
+          href="/"
+          className="text-[11px] uppercase font-medium tracking-widest text-white/70 hover:text-white transition-colors duration-300"
+        >
+          {t("lab")}
+        </Link>
+      </header>
 
-          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-            <Link
-              href="/"
-              style={{
-                fontSize: 13,
-                color: muted,
-                textDecoration: "none",
-                transition: "color 0.3s",
-              }}
-            >
-              &larr; Lab
-            </Link>
-            <button
-              onClick={() => setDark((d) => !d)}
-              style={{
-                width: 32,
-                height: 32,
-                borderRadius: "50%",
-                border: `1px solid ${border}`,
-                background: subtle,
-                color: muted,
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: 14,
-                transition: "all 0.3s",
-              }}
-              aria-label="Toggle dark mode"
-            >
-              {dark ? "☀" : "●"}
-            </button>
-            <button
-              onClick={() => setContactOpen((o) => !o)}
-              style={{
-                fontSize: 13,
-                fontWeight: 500,
-                color: bg,
-                background: fg,
-                border: "none",
-                borderRadius: 999,
-                padding: "8px 16px",
-                cursor: "pointer",
-                transition: "opacity 0.3s",
-              }}
-            >
-              {contactOpen ? "Close" : "Get in touch →"}
-            </button>
-          </div>
-        </nav>
+      {/* ─── Bottom toggles (match home) ─── */}
+      <div className="fixed bottom-0 left-0 right-0 z-40 flex items-center justify-center gap-4 px-5 py-4">
+        <button
+          onClick={handleToggleDark}
+          className="flex items-center justify-center rounded-full w-9 h-9 bg-white/15 text-white hover:bg-white/25 transition-colors duration-300"
+          aria-label="Toggle dark mode"
+        >
+          {dark ? "☀" : "●"}
+        </button>
+        <div className="flex items-center rounded-full text-[12px] font-medium bg-white/15 text-white/80">
+          <button
+            onClick={() => setLocale("en")}
+            className={`px-3 py-2 rounded-full transition-colors duration-200 ${locale === "en" ? "text-white bg-white/25" : ""}`}
+          >
+            EN
+          </button>
+          <button
+            onClick={() => setLocale("nl")}
+            className={`px-3 py-2 rounded-full transition-colors duration-200 ${locale === "nl" ? "text-white bg-white/25" : ""}`}
+          >
+            NL
+          </button>
+        </div>
+      </div>
 
-        {/* Contact chat overlay */}
-        <div style={{ maxWidth: 640, margin: "0 auto", padding: "0 20px" }}>
-          <ContactChat open={contactOpen} dark={dark} reducedMotion={false} source="studio" />
+      <main className="pt-24 pb-28 px-5 max-w-3xl mx-auto">
+        {/* Contact chat */}
+        <div className="max-w-xl mx-auto">
+          <ContactChat open={contactOpen} dark={true} reducedMotion={false} source="studio" />
         </div>
 
-        {/* ─── Section 1: Hero ─── */}
-        <section
-          style={{
-            maxWidth: 800,
-            margin: "0 auto",
-            padding: "120px 20px 80px",
-            textAlign: "center",
-          }}
-        >
+        {/* ─── Hero ─── */}
+        <section className="pt-16 pb-20 text-center">
           <p
-            style={{
-              fontSize: 12,
-              letterSpacing: "0.16em",
-              textTransform: "uppercase",
-              color: muted,
-              marginBottom: 24,
-              animation: "in 0.6s ease both",
-            }}
+            className="text-[11px] uppercase tracking-[0.2em] text-white/60 mb-6"
+            style={{ letterSpacing: "0.2em" }}
           >
             eyay.studio · Amsterdam
           </p>
           <h1
-            style={{
-              fontSize: "clamp(32px, 6vw, 56px)",
-              fontWeight: 700,
-              letterSpacing: "-0.03em",
-              lineHeight: 1.1,
-              margin: 0,
-              animation: "up 0.7s ease both",
-            }}
+            className="text-[clamp(2rem,5vw,3.25rem)] font-semibold leading-[1.15] tracking-tight"
+            style={{ letterSpacing: "-0.03em" }}
           >
             We build with AI.
             <br />
-            <span style={{ color: muted }}>Not just about it.</span>
+            <span className="text-white/70">Not just about it.</span>
           </h1>
-          <p
-            style={{
-              fontSize: "clamp(15px, 2vw, 18px)",
-              lineHeight: 1.6,
-              color: muted,
-              maxWidth: 560,
-              margin: "24px auto 0",
-              animation: "up 0.8s ease 0.1s both",
-            }}
-          >
-            A digital product studio in Amsterdam. Three people delivering what used to take ten
-            — faster iteration, higher output, senior-level quality.
+          <p className="text-[15px] sm:text-[17px] leading-relaxed text-white/70 max-w-md mx-auto mt-6">
+            A digital product studio in Amsterdam. Three people delivering what used to take ten — faster iteration, higher output, senior-level quality.
           </p>
         </section>
 
-        {/* ─── Section 2: Three Pillars ─── */}
-        <section style={{ maxWidth: 960, margin: "0 auto", padding: "0 20px 80px" }}>
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
-              border: `1px solid ${border}`,
-              borderRadius: 12,
-            }}
-          >
-            {[
-              {
-                num: "01",
-                title: "AI-Native Workflow",
-                desc: "AI accelerates every stage — design, code, iteration, QA. More output, fewer people, faster delivery.",
-              },
-              {
-                num: "02",
-                title: "End-to-End Ownership",
-                desc: "One team from research to production. No handoffs, no middlemen. The people you meet are the people who build.",
-              },
-              {
-                num: "03",
-                title: "Cutting-Edge Stack",
-                desc: "Next.js, TypeScript, Tailwind, Vercel, Supabase. Built for performance and maintainability. No legacy from day one.",
-              },
-            ].map((pillar, i) => (
-              <div
-                key={pillar.num}
-                style={{
-                  padding: 32,
-                  borderRight: i < 2 ? `1px solid ${border}` : "none",
-                  animation: `up 0.6s ease ${0.1 + i * 0.1}s both`,
-                }}
-              >
-                <span
-                  style={{
-                    fontSize: 12,
-                    fontWeight: 600,
-                    color: muted,
-                    letterSpacing: "0.08em",
-                  }}
-                >
-                  {pillar.num}
-                </span>
-                <h3
-                  style={{
-                    fontSize: 18,
-                    fontWeight: 600,
-                    margin: "12px 0 8px",
-                    letterSpacing: "-0.02em",
-                  }}
-                >
-                  {pillar.title}
-                </h3>
-                <p style={{ fontSize: 14, lineHeight: 1.6, color: muted, margin: 0 }}>
-                  {pillar.desc}
+        {/* ─── Pillars (editorial list) ─── */}
+        <section className="py-16 border-t border-white/15">
+          <div className="flex flex-col gap-14">
+            {pillars.map((p) => (
+              <div key={p.num}>
+                <span className="text-[11px] uppercase tracking-[0.12em] text-white/50">{p.num}</span>
+                <h2 className="text-[20px] sm:text-[22px] font-semibold mt-2 tracking-tight" style={{ letterSpacing: "-0.02em" }}>
+                  {p.title}
+                </h2>
+                <p className="text-[15px] leading-relaxed text-white/70 mt-2 max-w-xl">
+                  {p.desc}
                 </p>
               </div>
             ))}
           </div>
         </section>
 
-        {/* ─── Section 3: What we solve ─── */}
-        <section style={{ maxWidth: 640, margin: "0 auto", padding: "0 20px 80px" }}>
-          <p
-            style={{
-              fontSize: 12,
-              letterSpacing: "0.16em",
-              textTransform: "uppercase",
-              color: muted,
-              marginBottom: 32,
-            }}
-          >
+        {/* ─── What we solve (editorial) ─── */}
+        <section className="py-16 border-t border-white/15">
+          <p className="text-[11px] uppercase tracking-[0.2em] text-white/50 mb-10">
             What we solve
           </p>
-          <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+          <ul className="space-y-8">
             {chatBubbles.map((pair, i) => (
-              <div
-                key={i}
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: 8,
-                  animation: `up 0.5s ease ${0.1 + i * 0.08}s both`,
-                }}
-              >
-                {/* Problem — left */}
-                <div style={{ display: "flex", justifyContent: "flex-start" }}>
-                  <div
-                    style={{
-                      background: subtle,
-                      color: muted,
-                      padding: "12px 16px",
-                      borderRadius: "18px 18px 18px 4px",
-                      fontSize: 14,
-                      lineHeight: 1.5,
-                      maxWidth: "80%",
-                    }}
-                  >
-                    {pair.problem}
-                  </div>
-                </div>
-                {/* Solution — right */}
-                <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                  <div
-                    style={{
-                      background: fg,
-                      color: bg,
-                      padding: "12px 16px",
-                      borderRadius: "18px 18px 4px 18px",
-                      fontSize: 14,
-                      lineHeight: 1.5,
-                      maxWidth: "80%",
-                      fontWeight: 500,
-                    }}
-                  >
-                    {pair.solution}
-                  </div>
-                </div>
-              </div>
+              <li key={i} className="space-y-2">
+                <p className="text-[14px] text-white/60 italic">{pair.problem}</p>
+                <p className="text-[15px] font-medium">{pair.solution}</p>
+              </li>
             ))}
-          </div>
+          </ul>
         </section>
 
-        {/* ─── Section 4: Pricing ─── */}
-        <section style={{ maxWidth: 960, margin: "0 auto", padding: "0 20px 80px" }}>
-          <p
-            style={{
-              fontSize: 12,
-              letterSpacing: "0.16em",
-              textTransform: "uppercase",
-              color: muted,
-              marginBottom: 12,
-            }}
-          >
-            Pricing &amp; process
+        {/* ─── Pricing & process ─── */}
+        <section className="py-16 border-t border-white/15">
+          <p className="text-[11px] uppercase tracking-[0.2em] text-white/50 mb-2">
+            Pricing & process
           </p>
-          <h2
-            style={{
-              fontSize: "clamp(24px, 4vw, 36px)",
-              fontWeight: 700,
-              letterSpacing: "-0.03em",
-              margin: "0 0 32px",
-            }}
-          >
+          <h2 className="text-[28px] sm:text-[34px] font-semibold tracking-tight mt-2" style={{ letterSpacing: "-0.03em" }}>
             Transparent pricing. Flat fees. No surprises.
           </h2>
 
-          {/* Service tabs */}
-          <div
-            style={{
-              display: "flex",
-              flexWrap: "wrap",
-              gap: 8,
-              marginBottom: 40,
-            }}
-          >
+          <div className="flex flex-wrap gap-2 mt-10 mb-10">
             {serviceKeys.map((key) => (
               <button
                 key={key}
                 onClick={() => handleServiceSwitch(key)}
-                style={{
-                  padding: "8px 18px",
-                  borderRadius: 999,
-                  fontSize: 14,
-                  fontWeight: 500,
-                  cursor: "pointer",
-                  border: `1px solid ${activeService === key ? fg : border}`,
-                  background: activeService === key ? fg : "transparent",
-                  color: activeService === key ? bg : fg,
-                  transition: "all 0.25s",
-                }}
+                className={`px-4 py-2.5 rounded-full text-[14px] font-medium transition-colors duration-200 ${
+                  activeService === key
+                    ? "bg-white text-[#0000FF]"
+                    : "bg-white/15 text-white hover:bg-white/25"
+                }`}
               >
                 {services[key].label}
               </button>
             ))}
           </div>
 
-          {/* Two-column layout */}
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
-              gap: 40,
-            }}
-          >
-            {/* Left: Price */}
+          <div className="grid sm:grid-cols-2 gap-12 sm:gap-16">
             <div>
-              <span style={{ fontSize: 12, textTransform: "uppercase", color: muted, letterSpacing: "0.12em" }}>
-                From
-              </span>
-              <div
-                style={{
-                  fontSize: "clamp(48px, 8vw, 72px)",
-                  fontWeight: 700,
-                  letterSpacing: "-0.04em",
-                  lineHeight: 1,
-                  margin: "8px 0",
-                }}
-              >
+              <p className="text-[11px] uppercase tracking-[0.12em] text-white/50">From</p>
+              <p className="text-[3rem] sm:text-[4rem] font-bold leading-none tracking-tight mt-1" style={{ letterSpacing: "-0.04em" }}>
                 {formatPrice(animatedPrice)}
                 {current.suffix && (
-                  <span style={{ fontSize: "0.4em", color: muted, fontWeight: 400 }}>
-                    {current.suffix}
-                  </span>
+                  <span className="text-[0.35em] font-normal text-white/60 align-top">{current.suffix}</span>
                 )}
-              </div>
-              <p style={{ fontSize: 14, color: muted, margin: "4px 0 24px" }}>
-                Project time: {current.timeline}
               </p>
+              <p className="text-[14px] text-white/60 mt-2">Project time: {current.timeline}</p>
 
               <button
                 onClick={() => setShowRationale((s) => !s)}
-                style={{
-                  fontSize: 14,
-                  color: fg,
-                  background: "none",
-                  border: "none",
-                  cursor: "pointer",
-                  padding: 0,
-                  textDecoration: "none",
-                  opacity: 0.7,
-                  transition: "opacity 0.2s",
-                }}
+                className="mt-6 text-[14px] text-white/80 hover:text-white underline underline-offset-2"
               >
-                › {showRationale ? "Hide" : "Why does this cost / take this long?"}
+                {showRationale ? "Hide" : "Why does this cost / take this long?"}
               </button>
 
               {showRationale && (
-                <div
-                  style={{
-                    marginTop: 16,
-                    padding: 20,
-                    border: `1px solid ${border}`,
-                    borderRadius: 10,
-                    fontSize: 14,
-                    lineHeight: 1.7,
-                    color: muted,
-                    animation: "in 0.3s ease both",
-                  }}
-                >
+                <div className="mt-4 p-5 rounded-lg bg-white/10 text-[14px] leading-relaxed text-white/80">
                   {current.rationale}
                 </div>
               )}
             </div>
 
-            {/* Right: Deliverables */}
             <div key={deliverablesKey}>
-              <span style={{ fontSize: 12, textTransform: "uppercase", color: muted, letterSpacing: "0.12em" }}>
-                What you get
-              </span>
-              <p
-                style={{
-                  fontSize: 18,
-                  fontWeight: 600,
-                  margin: "12px 0 20px",
-                  letterSpacing: "-0.02em",
-                  animation: "up 0.4s ease both",
-                }}
-              >
+              <p className="text-[11px] uppercase tracking-[0.12em] text-white/50">What you get</p>
+              <p className="text-[18px] font-semibold mt-2 tracking-tight" style={{ letterSpacing: "-0.02em" }}>
                 {current.tagline}
               </p>
-              <ul style={{ listStyle: "none", padding: 0, margin: "0 0 28px" }}>
-                {current.deliverables.map((item, i) => (
-                  <li
-                    key={item}
-                    style={{
-                      fontSize: 14,
-                      lineHeight: 1.6,
-                      color: muted,
-                      padding: "6px 0",
-                      paddingLeft: 16,
-                      position: "relative",
-                      animation: `up 0.4s ease ${0.05 + i * 0.07}s both`,
-                    }}
-                  >
-                    <span
-                      style={{
-                        position: "absolute",
-                        left: 0,
-                        top: 6,
-                        width: 5,
-                        height: 5,
-                        borderRadius: "50%",
-                        background: muted,
-                        display: "inline-block",
-                      }}
-                    />
+              <ul className="mt-5 space-y-3">
+                {current.deliverables.map((item) => (
+                  <li key={item} className="text-[14px] text-white/75 leading-relaxed pl-4 border-l-2 border-white/30">
                     {item}
                   </li>
                 ))}
               </ul>
               <button
                 onClick={() => setContactOpen(true)}
-                style={{
-                  fontSize: 14,
-                  fontWeight: 500,
-                  color: bg,
-                  background: fg,
-                  border: "none",
-                  borderRadius: 999,
-                  padding: "10px 22px",
-                  cursor: "pointer",
-                  transition: "opacity 0.3s",
-                  animation: "up 0.4s ease 0.35s both",
-                }}
+                className="mt-8 px-5 py-3 rounded-full bg-white text-[#0000FF] text-[14px] font-medium hover:bg-white/90 transition-colors"
               >
                 Discuss this project →
               </button>
@@ -657,244 +382,80 @@ export default function StudioPage() {
           </div>
         </section>
 
-        {/* ─── Section 5: Team ─── */}
-        <section style={{ maxWidth: 960, margin: "0 auto", padding: "0 20px 80px" }}>
-          <p
-            style={{
-              fontSize: 12,
-              letterSpacing: "0.16em",
-              textTransform: "uppercase",
-              color: muted,
-              marginBottom: 32,
-            }}
-          >
+        {/* ─── Team ─── */}
+        <section className="py-16 border-t border-white/15">
+          <p className="text-[11px] uppercase tracking-[0.2em] text-white/50 mb-10">
             The team
           </p>
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-              gap: 32,
-            }}
-          >
-            {teamMembers.map((member, i) => (
-              <div
-                key={member.name}
-                style={{
-                  textAlign: "center",
-                  animation: `up 0.5s ease ${0.1 + i * 0.1}s both`,
-                }}
-              >
-                <div
-                  style={{
-                    width: 72,
-                    height: 72,
-                    borderRadius: "50%",
-                    background: subtle,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    margin: "0 auto 16px",
-                    fontSize: 24,
-                    fontWeight: 600,
-                    color: muted,
-                  }}
-                >
+          <div className="flex flex-col sm:flex-row gap-12 sm:gap-16">
+            {teamMembers.map((member) => (
+              <div key={member.name}>
+                <span className="inline-flex w-12 h-12 items-center justify-center rounded-full bg-white/15 text-[18px] font-semibold text-white/80">
                   {member.initial}
-                </div>
-                <p style={{ fontSize: 15, fontWeight: 600, margin: "0 0 4px" }}>
-                  {member.name}
-                </p>
-                <p style={{ fontSize: 13, color: muted, margin: 0 }}>{member.role}</p>
+                </span>
+                <p className="mt-3 text-[16px] font-semibold">{member.name}</p>
+                <p className="text-[14px] text-white/60">{member.role}</p>
               </div>
             ))}
           </div>
         </section>
 
-        {/* ─── Section 6: Selected builds ─── */}
-        <section style={{ maxWidth: 960, margin: "0 auto", padding: "0 20px 80px" }}>
-          <p
-            style={{
-              fontSize: 12,
-              letterSpacing: "0.16em",
-              textTransform: "uppercase",
-              color: muted,
-              marginBottom: 32,
-            }}
-          >
+        {/* ─── Selected builds ─── */}
+        <section className="py-16 border-t border-white/15">
+          <p className="text-[11px] uppercase tracking-[0.2em] text-white/50 mb-10">
             Selected builds
           </p>
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
-              border: `1px solid ${border}`,
-              borderRadius: 12,
-            }}
-          >
-            {selectedBuilds.map((build, i) => (
-              <SelectedBuildCard
-                key={build.name}
-                name={build.name}
-                tag={build.tag}
-                border={border}
-                subtle={subtle}
-                muted={muted}
-                fg={fg}
-                isLast={i === selectedBuilds.length - 1}
-                index={i}
-              />
+          <ul className="space-y-6">
+            {selectedBuilds.map((build) => (
+              <li key={build.name} className="group">
+                <p className="text-[16px] font-semibold group-hover:text-white/90">{build.name}</p>
+                <p className="text-[14px] text-white/60 mt-0.5">{build.tag}</p>
+              </li>
             ))}
-          </div>
-          <p
-            style={{
-              fontSize: 13,
-              fontStyle: "italic",
-              color: muted,
-              marginTop: 20,
-              textAlign: "center",
-            }}
-          >
+          </ul>
+          <p className="mt-8 text-[13px] italic text-white/50 text-center">
             More work available on request — some projects are under NDA.
           </p>
         </section>
 
-        {/* ─── Section 7: CTA footer ─── */}
-        <section
-          style={{
-            maxWidth: 640,
-            margin: "0 auto",
-            padding: "40px 20px 80px",
-            textAlign: "center",
-          }}
-        >
+        {/* ─── Footer CTA ─── */}
+        <footer className="py-20 text-center border-t border-white/15">
           <h2
-            style={{
-              fontSize: "clamp(28px, 5vw, 44px)",
-              fontWeight: 700,
-              letterSpacing: "-0.03em",
-              margin: "0 0 16px",
-              animation: "up 0.6s ease both",
-            }}
+            className="text-[28px] sm:text-[36px] font-semibold tracking-tight"
+            style={{ letterSpacing: "-0.03em" }}
           >
-            Your idea from this morning, built today.
+            {t("footer.headline")}
           </h2>
-          <p
-            style={{
-              fontSize: 16,
-              lineHeight: 1.6,
-              color: muted,
-              maxWidth: 480,
-              margin: "0 auto 28px",
-              animation: "up 0.6s ease 0.1s both",
-            }}
-          >
-            Let&apos;s have a 30-minute call. No pitch, no obligation. We&apos;ll figure out if
-            there&apos;s a fit.
+          <p className="mt-4 text-[15px] sm:text-[16px] leading-relaxed text-white/70 max-w-xl mx-auto">
+            {t("footer.subheadline")}
           </p>
           <button
             onClick={() => setContactOpen(true)}
-            style={{
-              fontSize: 15,
-              fontWeight: 500,
-              color: bg,
-              background: fg,
-              border: "none",
-              borderRadius: 999,
-              padding: "12px 28px",
-              cursor: "pointer",
-              transition: "opacity 0.3s",
-              animation: "up 0.5s ease 0.2s both",
-            }}
+            className="mt-6 px-6 py-3 rounded-full bg-white text-[#0000FF] text-[15px] font-medium hover:bg-white/90 transition-colors"
           >
-            Get in touch →
+            {contactOpen ? "Close" : "Get in touch →"}
           </button>
 
-          {/* Facts */}
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              gap: 40,
-              marginTop: 40,
-            }}
-          >
+          <div className="flex justify-center gap-10 mt-10">
             {[
-              { value: "2025", label: "founded" },
+              { value: "2025", label: t("footer.founded") },
               { value: "3", label: "team" },
-              { value: "100%", label: "self-initiated" },
+              { value: "100%", label: t("footer.selfInitiated") },
             ].map(({ value, label }) => (
-              <div
-                key={label}
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  gap: 2,
-                }}
-              >
-                <span style={{ fontSize: 15, fontWeight: 500 }}>{value}</span>
-                <span
-                  style={{
-                    fontSize: 11,
-                    textTransform: "uppercase",
-                    letterSpacing: "0.12em",
-                    color: muted,
-                  }}
-                >
+              <div key={label} className="flex flex-col items-center gap-0.5">
+                <span className="text-[15px] font-medium">{value}</span>
+                <span className="text-[11px] uppercase text-white/60" style={{ letterSpacing: "0.12em" }}>
                   {label}
                 </span>
               </div>
             ))}
           </div>
 
-          <p style={{ marginTop: 32, fontSize: 13, color: muted, letterSpacing: "0.12em" }}>
+          <p className="mt-8 text-[13px] text-white/50" style={{ letterSpacing: "0.12em" }}>
             eyay.studio · Amsterdam, NL
           </p>
-        </section>
-      </div>
-    </>
-  )
-}
-
-// ─── Selected build card (hover state needs its own component) ──
-function SelectedBuildCard({
-  name,
-  tag,
-  border,
-  subtle,
-  muted,
-  fg,
-  isLast,
-  index,
-}: {
-  name: string
-  tag: string
-  border: string
-  subtle: string
-  muted: string
-  fg: string
-  isLast: boolean
-  index: number
-}) {
-  const [hovered, setHovered] = useState(false)
-
-  return (
-    <div
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      style={{
-        padding: 24,
-        borderRight: isLast ? "none" : `1px solid ${border}`,
-        borderBottom: `1px solid ${border}`,
-        background: hovered ? subtle : "transparent",
-        transition: "background 0.25s",
-        cursor: "default",
-        animation: `up 0.5s ease ${0.1 + index * 0.08}s both`,
-      }}
-    >
-      <p style={{ fontSize: 16, fontWeight: 600, margin: "0 0 6px", color: fg }}>{name}</p>
-      <p style={{ fontSize: 13, color: muted, margin: 0, lineHeight: 1.5 }}>{tag}</p>
+        </footer>
+      </main>
     </div>
   )
 }

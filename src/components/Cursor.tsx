@@ -121,7 +121,7 @@ export function Cursor({ dark }: { dark: boolean }) {
           display: "block",
           fontSize: "16px",
           lineHeight: 1,
-          color: "#0000FF",
+          color: dark ? "#fff" : "#0000FF",
           fontWeight: 700,
           userSelect: "none",
         }}
@@ -141,7 +141,7 @@ export function Cursor({ dark }: { dark: boolean }) {
           marginLeft: "-5px",
           marginTop: "-5px",
           borderRadius: "50%",
-          backgroundColor: "#0000FF",
+          backgroundColor: dark ? "#fff" : "#0000FF",
         }}
       />
 
@@ -149,9 +149,10 @@ export function Cursor({ dark }: { dark: boolean }) {
       <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
         <div
           ref={tagRef}
-          className="origin-center whitespace-nowrap rounded-md px-2.5 py-1.5 text-[13px] font-medium text-white"
+          className="origin-center whitespace-nowrap rounded-md px-2.5 py-1.5 text-[13px] font-medium"
           style={{
-            backgroundColor: "#0000FF",
+            backgroundColor: dark ? "#fff" : "#0000FF",
+            color: dark ? "#0000FF" : "white",
             scale: 0,
             opacity: 0,
           }}

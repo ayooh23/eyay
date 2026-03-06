@@ -1,0 +1,41 @@
+{
+  "loader": {
+    "suffix": "where ideas get built today"
+  },
+  "studio": "Studio →",
+  "lab": "Lab",
+  "messages": {
+    "1": "Ey ay",
+    "2": "Yo sin",
+    "3": "what if we create something that…"
+  },
+  "studio": "Studio →",
+  "footer": {
+    "headline": "Your idea from this morning, built today.",
+    "subheadline": "From MVP to shipped product. From consumer apps to internal workflows.",
+    "getInTouch": "Get in touch →",
+    "close": "Close",
+    "founded": "founded",
+    "builders": "builders",
+    "selfInitiated": "self-initiated",
+    "studioLink": "Studio →",
+    "studioAddress": "eyay.studio — Amsterdam"
+  },
+  "projectTags": {
+    "project-1": "…promotes a language that keeps evolving",
+    "project-2": "…reflects a driven agency better",
+    "project-3": "…turns happiness scans into actionable insight",
+    "project-4": "…connects people to emergency care faster",
+    "project-5": "…improves how people search and find",
+    "project-6": "…preserves culture for the next generation",
+    "project-7": "…automates what your team does by hand",
+    "project-8": "…makes your service feel as good as it is"
+  },
+  "galleryServices": {
+    "mvp": "From MVP to shipped product.",
+    "aiFeature": "One AI feature, scoped and shipped.",
+    "sprint": "Research to prototype. No deck, no fluff.",
+    "retainer": "Ongoing senior support. No retainer bloat.",
+    "workflows": "From consumer apps to internal workflows."
+  }
+}
