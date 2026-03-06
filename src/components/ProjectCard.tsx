@@ -7,32 +7,24 @@ interface ProjectCardProps {
   name: string
   tag: string
   gradient: string
-  height: number
-  shift: "up" | "down" | "left" | "right"
   dark: boolean
   index: number
   reducedMotion?: boolean
+  media?: string
 }
 
-const shiftOffset: Record<string, { x: number; y: number }> = {
-  up:    { x: 0, y: -18 },
-  down:  { x: 0, y: 18 },
-  left:  { x: -18, y: 0 },
-  right: { x: 18, y: 0 },
-}
+const ZOOM_SCALE = 1.06
 
 export function ProjectCard({
   name,
   tag,
   gradient,
-  height,
-  shift,
   dark,
   index,
   reducedMotion = false,
+  media,
 }: ProjectCardProps) {
   const cardRef = useRef<HTMLDivElement>(null)
-  const overlayRef = useRef<HTMLDivElement>(null)
   const imageRef = useRef<HTMLDivElement>(null)
   const [hovered, setHovered] = useState(false)
 
@@ -60,81 +52,65 @@ export function ProjectCard({
     )
   }, [index, reducedMotion])
 
-  // Hover: image directional shift + overlay clip-path reveal
+  // Hover: image zoom only; title shows in cursor via data-cursor-label
   useEffect(() => {
     if (reducedMotion) return
-    const offset = shiftOffset[shift]
 
     if (hovered) {
       if (imageRef.current) {
         gsap.to(imageRef.current, {
-          x: offset.x,
-          y: offset.y,
+          scale: ZOOM_SCALE,
           duration: 0.5,
-          ease: "power3.out",
-        })
-      }
-      if (overlayRef.current) {
-        gsap.to(overlayRef.current, {
-          clipPath: "inset(0% 0 0 0)",
-          duration: 0.3,
           ease: "power3.out",
         })
       }
     } else {
       if (imageRef.current) {
         gsap.to(imageRef.current, {
-          x: 0,
-          y: 0,
+          scale: 1,
           duration: 0.5,
           ease: "power3.out",
         })
       }
-      if (overlayRef.current) {
-        gsap.to(overlayRef.current, {
-          clipPath: "inset(100% 0 0 0)",
-          duration: 0.3,
-          ease: "power3.out",
-        })
-      }
     }
-  }, [hovered, reducedMotion, shift])
+  }, [hovered, reducedMotion])
 
   return (
     <div
       ref={cardRef}
-      className="flex flex-col gap-2 cursor-pointer w-[260px] shrink-0 snap-start opacity-0"
+      className="flex flex-col gap-2 cursor-pointer w-[360px] shrink-0 snap-start opacity-0 items-start"
       data-hover
+      data-cursor-label={name}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-      {/* Image container — variable height per project */}
-      <div className="relative rounded-xl overflow-hidden" style={{ height }}>
+      {/* Image container — height hugs content, aligned top */}
+      <div
+        className={`relative rounded-xl overflow-hidden w-full ${media?.endsWith(".mp4") || !media ? "aspect-video" : ""}`}
+      >
         <div
           ref={imageRef}
-          className={`w-full h-full bg-gradient-to-br ${gradient}`}
+          className={`w-full h-full origin-center ${!media ? `bg-gradient-to-br ${gradient}` : ""}`}
           style={{ willChange: "transform" }}
-        />
-
-        {/* Name overlay — clip-path reveal */}
-        <div
-          ref={overlayRef}
-          className="absolute inset-0 flex items-end p-4 bg-black/50"
-          style={{ clipPath: "inset(100% 0 0 0)" }}
         >
-          <span className="text-white text-[15px] font-semibold">{name}</span>
+          {media && media.endsWith(".mp4") ? (
+            <video
+              src={media}
+              autoPlay
+              loop
+              muted
+              playsInline
+              className="w-full h-full object-cover"
+            />
+          ) : media ? (
+            <img
+              src={media}
+              alt={name}
+              className="w-full h-auto block"
+            />
+          ) : null}
         </div>
       </div>
-
-      {/* Tag pill */}
-      <span
-        className={`
-          self-start px-2.5 py-1 rounded-full text-[13px] leading-[1.5]
-          ${dark ? "bg-neutral-800 text-neutral-300" : "bg-neutral-100 text-neutral-600"}
-        `}
-      >
-        {tag}
-      </span>
     </div>
   )
 }

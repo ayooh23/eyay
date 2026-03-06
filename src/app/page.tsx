@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback, useMemo } from "react"
 import gsap from "gsap"
+import Link from "next/link"
 import { Cursor } from "@/components/Cursor"
 import { TypingIndicator } from "@/components/TypingIndicator"
 import { MessageBubble } from "@/components/MessageBubble"
@@ -44,11 +45,12 @@ function Loader({
   const loaderRef = useRef<HTMLDivElement>(null)
   const textRef = useRef<HTMLSpanElement>(null)
   const cursorRef = useRef<HTMLSpanElement>(null)
-  const fullText = "eyay where ideas get built"
+  const prompt = "➜  eyay: "
+  const suffix = "where ideas get built today"
 
   useEffect(() => {
     if (reducedMotion) {
-      if (textRef.current) textRef.current.textContent = fullText
+      if (textRef.current) textRef.current.textContent = suffix
       const t = setTimeout(onDone, 600)
       return () => clearTimeout(t)
     }
@@ -56,14 +58,14 @@ function Loader({
     let i = 0
     const interval = setInterval(() => {
       if (textRef.current) {
-        textRef.current.textContent = fullText.slice(0, i + 1)
+        textRef.current.textContent = suffix.slice(0, i + 1)
       }
       i++
-      if (i >= fullText.length) {
+      if (i >= suffix.length) {
         clearInterval(interval)
         setTimeout(onDone, 1200)
       }
-    }, 65)
+    }, 55)
 
     if (cursorRef.current) {
       gsap.to(cursorRef.current, {
@@ -83,43 +85,54 @@ function Loader({
       ref={loaderRef}
       data-loader
       className={`fixed inset-0 z-50 flex items-center justify-center ${
-        dark ? "bg-neutral-950" : "bg-white"
+        dark ? "bg-neutral-950" : "bg-neutral-100"
       }`}
       style={{ clipPath: "inset(0 0 0 0)" }}
     >
-      <div className="text-center">
-        <span
-          ref={textRef}
-          className={`text-[18px] sm:text-[22px] font-medium tracking-tight ${
-            dark ? "text-white" : "text-neutral-900"
-          }`}
-        />
+      {/* Terminal content only */}
+      <div
+        className={`px-4 py-4 font-mono text-[14px] sm:text-[15px] ${
+          dark ? "text-neutral-500" : "text-neutral-400"
+        }`}
+      >
+        <span className="text-[#0000FF]">
+          {prompt}
+        </span>
+        <span ref={textRef} className="tabular-nums" />
         <span
           ref={cursorRef}
-          className={`inline-block w-[2px] h-[22px] ml-0.5 align-middle ${
-            dark ? "bg-white" : "bg-neutral-900"
-          }`}
+          className="inline-block w-2.5 h-4 ml-0.5 align-middle bg-[#0000FF]"
+          style={{ verticalAlign: "text-bottom" }}
         />
-        <div className="relative mt-1 flex justify-center">
-          <span
-            className="border-b-2 border-dashed border-red-500"
-            style={{ width: "3.2ch" }}
-          />
-        </div>
       </div>
     </div>
   )
 }
 
 // ─── Main page ───────────────────────────────────────────────
+const THEME_KEY = "eyay-dark"
+
+function getInitialDark(): boolean {
+  if (typeof window === "undefined") return false
+  const stored = localStorage.getItem(THEME_KEY)
+  if (stored === "true") return true
+  if (stored === "false") return false
+  return window.matchMedia("(prefers-color-scheme: dark)").matches
+}
+
 export default function Home() {
   const [dark, setDark] = useState(false)
+  const [themeReady, setThemeReady] = useState(false)
   const [phase, setPhase] = useState<"loading" | "chat" | "gallery">("loading")
   const [visibleMessages, setVisibleMessages] = useState<number[]>([])
   const [typingSender, setTypingSender] = useState<string | null>(null)
   const [readMessages, setReadMessages] = useState<Set<number>>(new Set())
   const [showGallery, setShowGallery] = useState(false)
+  const [contactOpen, setContactOpen] = useState(false)
   const footerRef = useRef<HTMLDivElement>(null)
+  const galleryScrollRef = useRef<HTMLDivElement>(null)
+  const galleryCardRefs = useRef<(HTMLDivElement | null)[]>([])
+  const [activeProjectIndex, setActiveProjectIndex] = useState(0)
 
   const messages = useMemo(() => buildMessages(), [])
 
@@ -129,6 +142,20 @@ export default function Home() {
   useEffect(() => {
     setReducedMotion(window.matchMedia("(prefers-reduced-motion: reduce)").matches)
     setIsDesktop(window.matchMedia("(pointer: fine)").matches)
+  }, [])
+
+  // Sync dark mode with user preference (localStorage + system) on mount
+  useEffect(() => {
+    setDark(getInitialDark())
+    setThemeReady(true)
+  }, [])
+
+  const handleToggleDark = useCallback(() => {
+    setDark((d) => {
+      const next = !d
+      if (typeof window !== "undefined") localStorage.setItem(THEME_KEY, String(next))
+      return next
+    })
   }, [])
 
   // Loader done → clip-path wipe exit, then start chat
@@ -193,6 +220,49 @@ export default function Home() {
     return () => timers.forEach(clearTimeout)
   }, [phase])
 
+  // Which project card is in the center of the gallery viewport (messaging area)
+  // Use getBoundingClientRect so "center" is the visible viewport center, not scroll content
+  const updateActiveProject = useCallback(() => {
+    const scrollEl = galleryScrollRef.current
+    if (!scrollEl) return
+    const rect = scrollEl.getBoundingClientRect()
+    const viewportCenterX = rect.left + rect.width / 2
+    const cards = galleryCardRefs.current
+    let best = 0
+    let bestDist = Infinity
+    cards.forEach((el, i) => {
+      if (!el) return
+      const cardRect = el.getBoundingClientRect()
+      const cardCenterX = cardRect.left + cardRect.width / 2
+      const dist = Math.abs(viewportCenterX - cardCenterX)
+      if (dist < bestDist) {
+        bestDist = dist
+        best = i
+      }
+    })
+    setActiveProjectIndex(best)
+  }, [])
+
+  useEffect(() => {
+    if (!showGallery) return
+    let cleanup: (() => void) | undefined
+    const t = setTimeout(() => {
+      updateActiveProject()
+      const scrollEl = galleryScrollRef.current
+      if (!scrollEl) return
+      scrollEl.addEventListener("scroll", updateActiveProject)
+      window.addEventListener("resize", updateActiveProject)
+      cleanup = () => {
+        scrollEl.removeEventListener("scroll", updateActiveProject)
+        window.removeEventListener("resize", updateActiveProject)
+      }
+    }, 50)
+    return () => {
+      clearTimeout(t)
+      cleanup?.()
+    }
+  }, [showGallery, updateActiveProject])
+
   // Footer entrance — IntersectionObserver triggers GSAP
   useEffect(() => {
     if (!showGallery || !footerRef.current) return
@@ -247,22 +317,33 @@ export default function Home() {
           />
         </div>
 
-        <button
-          onClick={() => setDark((d) => !d)}
-          className={`w-9 h-9 flex items-center justify-center rounded-full transition-colors duration-300 ${
-            dark
-              ? "bg-neutral-800 text-neutral-300"
-              : "bg-neutral-100 text-neutral-600"
-          }`}
-          data-hover
-          aria-label="Toggle dark mode"
-        >
-          <DarkModeIcon dark={dark} />
-        </button>
+        <div className="flex items-center gap-3">
+          <Link
+            href="/studio"
+            className={`text-[11px] uppercase font-medium tracking-widest transition-colors duration-300 ${
+              dark ? "text-neutral-500 hover:text-neutral-300" : "text-neutral-400 hover:text-neutral-600"
+            }`}
+            data-hover
+          >
+            Studio &rarr;
+          </Link>
+          <button
+            onClick={handleToggleDark}
+            className={`w-9 h-9 flex items-center justify-center rounded-full transition-colors duration-300 ${
+              dark
+                ? "bg-neutral-800 text-neutral-300"
+                : "bg-neutral-100 text-neutral-600"
+            }`}
+            data-hover
+            aria-label="Toggle dark mode"
+          >
+            <DarkModeIcon dark={dark} />
+          </button>
+        </div>
       </header>
 
       {/* ─── Loader ─── */}
-      {phase === "loading" && (
+      {phase === "loading" && themeReady && (
         <Loader dark={dark} onDone={handleLoaderDone} reducedMotion={reducedMotion} />
       )}
 
@@ -285,24 +366,70 @@ export default function Home() {
               ) : null
             )}
             {typingSender && <TypingIndicator dark={dark} />}
+            {/* Descriptor as message — right below last bubble, updates with centered card */}
+            {showGallery && (
+              <div className="flex justify-start mb-1.5">
+                <div>
+                  <div
+                    className={`
+                      max-w-[240px] px-3.5 py-2 text-[15px] leading-[1.35]
+                      rounded-2xl rounded-bl-sm
+                      ${dark ? "bg-neutral-800 text-white" : "bg-neutral-100 text-neutral-900"}
+                    `}
+                  >
+                    {projects[activeProjectIndex]?.tag ?? ""}
+                  </div>
+                  <div className={`flex items-center gap-1 mt-0.5 text-[11px] justify-start ${dark ? "text-neutral-600" : "text-neutral-400"}`}>
+                    <span>11:18</span>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
-          {/* ─── Gallery ─── */}
+          {/* ─── Gallery — full viewport width scroll, soft side overlays ─── */}
           {showGallery && (
-            <section className="mt-12" style={{ marginLeft: "calc(-50vw + 50%)", marginRight: "calc(-50vw + 50%)", width: "100vw" }}>
-              <div className="flex items-end gap-4 overflow-x-auto no-scrollbar snap-x snap-mandatory pb-4 px-5">
+            <section
+              className="mt-6 relative"
+              style={{ marginLeft: "calc(-50vw + 50%)", marginRight: "calc(-50vw + 50%)", width: "100vw" }}
+            >
+              {/* Side overlays — subtle gradient fade */}
+              <div
+                className={`absolute left-0 top-0 bottom-4 w-12 z-10 pointer-events-none ${
+                  dark ? "bg-gradient-to-r from-neutral-950/30 to-transparent" : "bg-gradient-to-r from-white/30 to-transparent"
+                }`}
+              />
+              <div
+                className={`absolute right-0 top-0 bottom-4 w-12 z-10 pointer-events-none ${
+                  dark ? "bg-gradient-to-l from-neutral-950/30 to-transparent" : "bg-gradient-to-l from-white/30 to-transparent"
+                }`}
+              />
+              <div
+                ref={galleryScrollRef}
+                className="flex gap-4 overflow-x-auto overflow-y-visible no-scrollbar snap-x snap-mandatory items-start pb-4"
+                style={{
+                  paddingLeft: "calc((100vw - 360px) / 2)",
+                  paddingRight: "calc((100vw - 360px) / 2)",
+                  scrollPaddingLeft: "calc((100vw - 360px) / 2)",
+                  scrollPaddingRight: "calc((100vw - 360px) / 2)",
+                }}
+              >
                 {projects.map((project, i) => (
-                  <ProjectCard
+                  <div
                     key={project.id}
-                    name={project.name}
-                    tag={project.tag}
-                    gradient={project.gradient}
-                    height={project.height}
-                    shift={project.shift}
-                    dark={dark}
-                    index={i}
-                    reducedMotion={reducedMotion}
-                  />
+                    ref={(el) => { galleryCardRefs.current[i] = el }}
+                    className="shrink-0 snap-center"
+                  >
+                    <ProjectCard
+                      name={project.name}
+                      tag={project.tag}
+                      gradient={project.gradient}
+                      dark={dark}
+                      index={i}
+                      reducedMotion={reducedMotion}
+                      media={project.media}
+                    />
+                  </div>
                 ))}
               </div>
             </section>
@@ -317,11 +444,11 @@ export default function Home() {
                 }`}
                 style={{ letterSpacing: "-0.03em" }}
               >
-                Your idea, finally built.
+                Your idea from this morning, built today.
               </h2>
 
-              <a
-                href="mailto:hello@eyay.studio"
+              <button
+                onClick={() => setContactOpen((o) => !o)}
                 className={`inline-block mt-5 px-6 py-3 rounded-full text-[15px] font-medium transition-all duration-300 ${
                   dark
                     ? "bg-white text-neutral-900 hover:bg-neutral-200"
@@ -329,8 +456,16 @@ export default function Home() {
                 }`}
                 data-hover
               >
-                Get in touch &rarr;
-              </a>
+                {contactOpen ? "Close" : "Get in touch \u2192"}
+              </button>
+
+              {/* Inline contact chat — toggles open below the button */}
+              <ContactChat
+                open={contactOpen}
+                dark={dark}
+                reducedMotion={reducedMotion}
+                source="lab"
+              />
 
               {/* Facts */}
               <div className="flex justify-center gap-8 mt-6">
@@ -359,8 +494,18 @@ export default function Home() {
                 ))}
               </div>
 
+              <Link
+                href="/studio"
+                className={`inline-block mt-6 text-[11px] uppercase font-medium tracking-widest transition-colors duration-300 ${
+                  dark ? "text-neutral-500 hover:text-neutral-300" : "text-neutral-400 hover:text-neutral-600"
+                }`}
+                data-hover
+              >
+                Studio &rarr;
+              </Link>
+
               <p
-                className={`mt-6 text-[13px] ${
+                className={`mt-3 text-[13px] ${
                   dark ? "text-neutral-600" : "text-neutral-400"
                 }`}
                 style={{ letterSpacing: "0.12em" }}
@@ -371,6 +516,7 @@ export default function Home() {
           )}
         </main>
       )}
+
     </div>
   )
 }

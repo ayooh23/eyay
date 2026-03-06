@@ -1,96 +1,164 @@
 "use client"
 
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import gsap from "gsap"
 
 export function Cursor({ dark }: { dark: boolean }) {
+  const cursorRef = useRef<HTMLDivElement>(null)
+  const arrowRef = useRef<HTMLSpanElement>(null)
   const dotRef = useRef<HTMLDivElement>(null)
-  const ringRef = useRef<HTMLDivElement>(null)
-  const pos = useRef({ x: 0, y: 0 })
+  const tagRef = useRef<HTMLDivElement>(null)
+  const prev = useRef({ x: 0, y: 0 })
+  const angle = useRef(0)
+  const hovering = useRef(false)
+  const hoverType = useRef<"arrow" | "dot" | "tag">("arrow")
+  const [cursorLabel, setCursorLabel] = useState<string | null>(null)
 
   useEffect(() => {
+    const el = cursorRef.current
+    const arrow = arrowRef.current
     const dot = dotRef.current
-    const ring = ringRef.current
-    if (!dot || !ring) return
+    const tag = tagRef.current
+    if (!el || !arrow || !dot || !tag) return
 
-    // Set initial position off-screen
-    gsap.set(dot, { xPercent: -50, yPercent: -50, x: -100, y: -100 })
-    gsap.set(ring, { xPercent: -50, yPercent: -50, x: -100, y: -100 })
+    gsap.set(el, { x: -100, y: -100 })
+    gsap.set(dot, { scale: 0, opacity: 0 })
+    gsap.set(tag, { scale: 0, opacity: 0 })
 
     const onMove = (e: MouseEvent) => {
-      pos.current = { x: e.clientX, y: e.clientY }
+      const dx = e.clientX - prev.current.x
+      const dy = e.clientY - prev.current.y
 
-      // Dot follows instantly
-      gsap.to(dot, {
+      if (Math.abs(dx) > 1 || Math.abs(dy) > 1) {
+        angle.current = Math.atan2(dy, dx) * (180 / Math.PI)
+      }
+
+      prev.current = { x: e.clientX, y: e.clientY }
+
+      gsap.to(el, {
         x: e.clientX,
         y: e.clientY,
-        duration: 0.05,
-        ease: "none",
-      })
-
-      // Ring follows with spring-like easing
-      gsap.to(ring, {
-        x: e.clientX,
-        y: e.clientY,
-        duration: 0.35,
+        rotation: hovering.current ? 0 : angle.current,
+        duration: 0.12,
         ease: "power2.out",
       })
     }
 
-    // Expand ring on interactive elements
-    const onEnterInteractive = () => {
-      gsap.to(ring, { scale: 1.6, opacity: 0.5, duration: 0.25, ease: "power2.out" })
+    const onEnter = (e: Event) => {
+      const target = e.target as HTMLElement
+      const label = target.getAttribute?.("data-cursor-label")
+      hovering.current = true
+
+      if (label) {
+        hoverType.current = "tag"
+        setCursorLabel(label)
+        gsap.to(arrow, { scale: 0, opacity: 0, duration: 0.2, ease: "power2.in" })
+        gsap.to(dot, { scale: 0, opacity: 0, duration: 0.15, ease: "power2.in" })
+        gsap.to(tag, { scale: 1, opacity: 1, duration: 0.25, ease: "back.out(1.7)" })
+        gsap.to(el, { rotation: 0, duration: 0.2, ease: "power2.out" })
+      } else {
+        hoverType.current = "dot"
+        setCursorLabel(null)
+        gsap.to(arrow, { scale: 0, opacity: 0, duration: 0.2, ease: "power2.in" })
+        gsap.to(tag, { scale: 0, opacity: 0, duration: 0.15, ease: "power2.in" })
+        gsap.to(dot, { scale: 1, opacity: 1, duration: 0.25, ease: "back.out(1.7)" })
+        gsap.to(el, { rotation: 0, duration: 0.2, ease: "power2.out" })
+      }
     }
-    const onLeaveInteractive = () => {
-      gsap.to(ring, { scale: 1, opacity: 1, duration: 0.25, ease: "power2.out" })
+
+    const onLeave = () => {
+      hovering.current = false
+      setCursorLabel(null)
+      gsap.to(tag, { scale: 0, opacity: 0, duration: 0.15, ease: "power2.in" })
+      gsap.to(dot, { scale: 0, opacity: 0, duration: 0.15, ease: "power2.in" })
+      gsap.to(arrow, { scale: 1, opacity: 1, duration: 0.25, ease: "back.out(1.7)" })
+      hoverType.current = "arrow"
     }
 
     window.addEventListener("mousemove", onMove)
 
-    // Attach hover listeners to interactive elements
-    const interactives = document.querySelectorAll("a, button, [data-hover]")
-    interactives.forEach((el) => {
-      el.addEventListener("mouseenter", onEnterInteractive)
-      el.addEventListener("mouseleave", onLeaveInteractive)
+    const attachListeners = () => {
+      const interactives = document.querySelectorAll("a, button, [data-hover], input, textarea")
+      interactives.forEach((interactive) => {
+        interactive.addEventListener("mouseenter", onEnter)
+        interactive.addEventListener("mouseleave", onLeave)
+      })
+      return interactives
+    }
+
+    let interactives = attachListeners()
+
+    const observer = new MutationObserver(() => {
+      interactives.forEach((el) => {
+        el.removeEventListener("mouseenter", onEnter)
+        el.removeEventListener("mouseleave", onLeave)
+      })
+      interactives = attachListeners()
     })
+
+    observer.observe(document.body, { childList: true, subtree: true })
 
     return () => {
       window.removeEventListener("mousemove", onMove)
       interactives.forEach((el) => {
-        el.removeEventListener("mouseenter", onEnterInteractive)
-        el.removeEventListener("mouseleave", onLeaveInteractive)
+        el.removeEventListener("mouseenter", onEnter)
+        el.removeEventListener("mouseleave", onLeave)
       })
+      observer.disconnect()
     }
   }, [])
 
-  // Update colors when dark mode changes
-  useEffect(() => {
-    if (dotRef.current) {
-      gsap.to(dotRef.current, {
-        backgroundColor: dark ? "#fff" : "#0d0d0d",
-        duration: 0.3,
-      })
-    }
-    if (ringRef.current) {
-      gsap.to(ringRef.current, {
-        borderColor: dark ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.2)",
-        duration: 0.3,
-      })
-    }
-  }, [dark])
-
   return (
-    <>
+    <div
+      ref={cursorRef}
+      className="fixed top-0 left-0 pointer-events-none z-[999]"
+      style={{ marginLeft: "-8px", marginTop: "-8px", transformOrigin: "center center" }}
+    >
+      {/* Arrow — default state */}
+      <span
+        ref={arrowRef}
+        style={{
+          display: "block",
+          fontSize: "16px",
+          lineHeight: 1,
+          color: "#0000FF",
+          fontWeight: 700,
+          userSelect: "none",
+        }}
+      >
+        ➜
+      </span>
+
+      {/* Dot — hover generic interactive */}
       <div
         ref={dotRef}
-        className="fixed top-0 left-0 w-[6px] h-[6px] rounded-full pointer-events-none z-[999]"
-        style={{ backgroundColor: dark ? "#fff" : "#0d0d0d" }}
+        style={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          width: "10px",
+          height: "10px",
+          marginLeft: "-5px",
+          marginTop: "-5px",
+          borderRadius: "50%",
+          backgroundColor: "#0000FF",
+        }}
       />
-      <div
-        ref={ringRef}
-        className="fixed top-0 left-0 w-[28px] h-[28px] rounded-full border pointer-events-none z-[998]"
-        style={{ borderColor: dark ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.2)" }}
-      />
-    </>
+
+      {/* Tag — hover project card: rectangle with title, no caps */}
+      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+        <div
+          ref={tagRef}
+          className="origin-center whitespace-nowrap rounded-md px-2.5 py-1.5 text-[13px] font-medium text-white"
+          style={{
+            backgroundColor: "#0000FF",
+            scale: 0,
+            opacity: 0,
+          }}
+        >
+          {cursorLabel?.toLowerCase() ?? ""}
+        </div>
+      </div>
+    </div>
   )
 }

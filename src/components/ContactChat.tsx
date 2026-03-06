@@ -1,24 +1,29 @@
 "use client"
 
-import { useEffect, useRef, useState, useCallback } from "react"
+import { useEffect, useRef, useState, useCallback, useMemo } from "react"
 import gsap from "gsap"
 import { MessageBubble } from "@/components/MessageBubble"
 import { TypingIndicator } from "@/components/TypingIndicator"
 
 interface ContactChatProps {
   open: boolean
-  onClose: () => void
   dark: boolean
   reducedMotion: boolean
+  source?: "lab" | "studio"
 }
 
-// Pre-scripted intro messages
-const introMessages = [
-  { id: 1, sender: "sinyo" as const, text: "hey!", time: "now" },
-  { id: 2, sender: "sinyo" as const, text: "tell us about your idea", time: "now" },
-]
+function getIntroMessages(source: "lab" | "studio") {
+  return [
+    { id: 1, sender: "sinyo" as const, text: "hey!", time: "now" },
+    {
+      id: 2,
+      sender: "sinyo" as const,
+      text: source === "studio" ? "tell me about your project" : "tell us about your idea",
+      time: "now",
+    },
+  ]
+}
 
-// Timeline for the intro sequence
 const introTimeline = [
   { type: "typing" as const, at: 400 },
   { type: "message" as const, id: 1, at: 1400 },
@@ -27,8 +32,10 @@ const introTimeline = [
   { type: "input" as const, at: 3600 },
 ]
 
-export function ContactChat({ open, onClose, dark, reducedMotion }: ContactChatProps) {
-  const overlayRef = useRef<HTMLDivElement>(null)
+export function ContactChat({ open, dark, reducedMotion, source = "lab" }: ContactChatProps) {
+  const introMessages = useMemo(() => getIntroMessages(source), [source])
+  const wrapperRef = useRef<HTMLDivElement>(null)
+  const innerRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const [visibleMessages, setVisibleMessages] = useState<number[]>([])
   const [typing, setTyping] = useState(false)
@@ -37,22 +44,72 @@ export function ContactChat({ open, onClose, dark, reducedMotion }: ContactChatP
   const [sent, setSent] = useState(false)
   const [hasPlayed, setHasPlayed] = useState(false)
 
-  // Entrance animation
+  // Animate height open/close
   useEffect(() => {
-    if (!open || !overlayRef.current) return
+    const wrapper = wrapperRef.current
+    const inner = innerRef.current
+    if (!wrapper || !inner) return
 
-    if (reducedMotion) {
-      gsap.set(overlayRef.current, { clipPath: "inset(0 0 0 0)", opacity: 1 })
-    } else {
+    if (open) {
+      // Measure content height, then animate from 0
+      gsap.set(wrapper, { height: "auto", overflow: "hidden" })
+      const h = inner.offsetHeight
       gsap.fromTo(
-        overlayRef.current,
-        { clipPath: "inset(100% 0 0 0)" },
-        { clipPath: "inset(0 0 0 0)", duration: 0.5, ease: "power4.out" }
+        wrapper,
+        { height: 0, opacity: 0 },
+        {
+          height: h,
+          opacity: 1,
+          duration: reducedMotion ? 0.01 : 0.5,
+          ease: "power3.out",
+          onComplete: () => {
+            gsap.set(wrapper, { height: "auto", overflow: "visible" })
+          },
+        }
       )
+    } else {
+      // Collapse
+      gsap.to(wrapper, {
+        height: 0,
+        opacity: 0,
+        duration: reducedMotion ? 0.01 : 0.35,
+        ease: "power3.in",
+        onComplete: () => {
+          // Reset state when closed
+          setVisibleMessages([])
+          setTyping(false)
+          setShowInput(false)
+          setMessage("")
+          setSent(false)
+          setHasPlayed(false)
+        },
+      })
     }
   }, [open, reducedMotion])
 
-  // Run intro timeline when opened (only once per open)
+  // Re-measure height when content changes (messages appear, input shows)
+  useEffect(() => {
+    if (!open) return
+    const wrapper = wrapperRef.current
+    const inner = innerRef.current
+    if (!wrapper || !inner) return
+
+    // Only animate height if wrapper is currently auto (fully open)
+    const current = wrapper.style.height
+    if (current === "auto") {
+      const h = inner.offsetHeight
+      gsap.to(wrapper, {
+        height: h,
+        duration: reducedMotion ? 0.01 : 0.3,
+        ease: "power3.out",
+        onComplete: () => {
+          gsap.set(wrapper, { height: "auto" })
+        },
+      })
+    }
+  }, [visibleMessages, showInput, sent, typing, open, reducedMotion])
+
+  // Run intro timeline
   useEffect(() => {
     if (!open || hasPlayed) return
 
@@ -87,48 +144,15 @@ export function ContactChat({ open, onClose, dark, reducedMotion }: ContactChatP
     }
   }, [showInput])
 
-  // Close with animation
-  const handleClose = useCallback(() => {
-    if (!overlayRef.current) {
-      onClose()
-      return
-    }
-
-    const complete = () => {
-      // Reset state for next open
-      setVisibleMessages([])
-      setTyping(false)
-      setShowInput(false)
-      setMessage("")
-      setSent(false)
-      setHasPlayed(false)
-      onClose()
-    }
-
-    if (reducedMotion) {
-      gsap.to(overlayRef.current, { opacity: 0, duration: 0.2, onComplete: complete })
-    } else {
-      gsap.to(overlayRef.current, {
-        clipPath: "inset(100% 0 0 0)",
-        duration: 0.4,
-        ease: "power4.in",
-        onComplete: complete,
-      })
-    }
-  }, [onClose, reducedMotion])
-
-  // Send message via mailto
+  // Send via mailto
   const handleSend = useCallback(() => {
     if (!message.trim()) return
-
     setSent(true)
-
     const subject = encodeURIComponent("New idea")
     const body = encodeURIComponent(message.trim())
     window.location.href = `mailto:hello@eyay.studio?subject=${subject}&body=${body}`
   }, [message])
 
-  // Handle Enter key (send) and Shift+Enter (newline)
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
       if (e.key === "Enter" && !e.shiftKey) {
@@ -139,48 +163,13 @@ export function ContactChat({ open, onClose, dark, reducedMotion }: ContactChatP
     [handleSend]
   )
 
-  if (!open) return null
-
   return (
     <div
-      ref={overlayRef}
-      className={`fixed inset-0 z-50 flex flex-col ${
-        dark ? "bg-neutral-950" : "bg-white"
-      }`}
-      style={{ clipPath: "inset(100% 0 0 0)" }}
+      ref={wrapperRef}
+      style={{ height: 0, opacity: 0, overflow: "hidden" }}
     >
-      {/* Header */}
-      <div className="flex items-center justify-between px-5 py-4">
-        <div className="flex flex-col items-start">
-          <span
-            className={`text-[18px] font-bold tracking-tight ${
-              dark ? "text-white" : "text-neutral-900"
-            }`}
-          >
-            eyay
-          </span>
-          <span
-            className="border-b-2 border-dashed border-red-500 -mt-0.5"
-            style={{ width: "2.8ch" }}
-          />
-        </div>
-
-        <button
-          onClick={handleClose}
-          className={`w-9 h-9 flex items-center justify-center rounded-full transition-colors duration-300 ${
-            dark ? "bg-neutral-800 text-neutral-300" : "bg-neutral-100 text-neutral-600"
-          }`}
-          data-hover
-          aria-label="Close contact chat"
-        >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M18 6L6 18M6 6l12 12" />
-          </svg>
-        </button>
-      </div>
-
-      {/* Chat area */}
-      <div className="flex-1 overflow-y-auto px-5 pt-8">
+      <div ref={innerRef} className="pt-8">
+        {/* Chat messages */}
         <div className="max-w-md mx-auto flex flex-col gap-0">
           {introMessages.map((msg) =>
             visibleMessages.includes(msg.id) ? (
@@ -196,7 +185,6 @@ export function ContactChat({ open, onClose, dark, reducedMotion }: ContactChatP
           )}
           {typing && <TypingIndicator dark={dark} />}
 
-          {/* Sent confirmation */}
           {sent && (
             <MessageBubble
               text={message.trim()}
@@ -208,62 +196,55 @@ export function ContactChat({ open, onClose, dark, reducedMotion }: ContactChatP
             />
           )}
         </div>
-      </div>
 
-      {/* Input area — appears after intro */}
-      {showInput && !sent && (
-        <div className={`px-5 py-4 border-t ${dark ? "border-neutral-800" : "border-neutral-100"}`}>
-          <div className="max-w-md mx-auto flex gap-3 items-end">
-            <textarea
-              ref={inputRef}
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="type your idea..."
-              rows={1}
-              className={`flex-1 resize-none rounded-2xl px-4 py-3 text-[15px] leading-[1.35] outline-none transition-colors duration-300 ${
-                dark
-                  ? "bg-neutral-800 text-white placeholder:text-neutral-500"
-                  : "bg-neutral-100 text-neutral-900 placeholder:text-neutral-400"
-              }`}
-              style={{ maxHeight: "120px" }}
-            />
-            <button
-              onClick={handleSend}
-              disabled={!message.trim()}
-              className={`shrink-0 w-10 h-10 flex items-center justify-center rounded-full transition-all duration-300 ${
-                message.trim()
-                  ? dark
-                    ? "bg-white text-neutral-900"
-                    : "bg-neutral-900 text-white"
-                  : dark
-                    ? "bg-neutral-800 text-neutral-600"
-                    : "bg-neutral-100 text-neutral-400"
-              }`}
-              data-hover
-              aria-label="Send message"
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" />
-              </svg>
-            </button>
+        {/* Input */}
+        {showInput && !sent && (
+          <div className="max-w-md mx-auto mt-4">
+            <div className="flex gap-3 items-end">
+              <textarea
+                ref={inputRef}
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="type your idea..."
+                rows={1}
+                className={`flex-1 resize-none rounded-2xl px-4 py-3 text-[15px] leading-[1.35] outline-none transition-colors duration-300 ${
+                  dark
+                    ? "bg-neutral-800 text-white placeholder:text-neutral-500"
+                    : "bg-neutral-100 text-neutral-900 placeholder:text-neutral-400"
+                }`}
+                style={{ maxHeight: "120px" }}
+              />
+              <button
+                onClick={handleSend}
+                disabled={!message.trim()}
+                className={`shrink-0 w-10 h-10 flex items-center justify-center rounded-full transition-all duration-300 ${
+                  message.trim()
+                    ? dark
+                      ? "bg-white text-neutral-900"
+                      : "bg-neutral-900 text-white"
+                    : dark
+                      ? "bg-neutral-800 text-neutral-600"
+                      : "bg-neutral-100 text-neutral-400"
+                }`}
+                data-hover
+                aria-label="Send message"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" />
+                </svg>
+              </button>
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Post-send state */}
-      {sent && (
-        <div className={`px-5 py-6 text-center ${dark ? "text-neutral-500" : "text-neutral-400"}`}>
-          <p className="text-[13px]">your email client should open shortly</p>
-          <button
-            onClick={handleClose}
-            className={`mt-3 text-[13px] font-medium ${dark ? "text-neutral-300" : "text-neutral-600"}`}
-            data-hover
-          >
-            close
-          </button>
-        </div>
-      )}
+        {/* Post-send */}
+        {sent && (
+          <div className={`mt-4 text-center ${dark ? "text-neutral-500" : "text-neutral-400"}`}>
+            <p className="text-[13px]">your email client should open shortly</p>
+          </div>
+        )}
+      </div>
     </div>
   )
 }
