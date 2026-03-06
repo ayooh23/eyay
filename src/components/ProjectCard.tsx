@@ -8,9 +8,17 @@ interface ProjectCardProps {
   tag: string
   gradient: string
   height: number
+  shift: "up" | "down" | "left" | "right"
   dark: boolean
   index: number
   reducedMotion?: boolean
+}
+
+const shiftOffset: Record<string, { x: number; y: number }> = {
+  up:    { x: 0, y: -18 },
+  down:  { x: 0, y: 18 },
+  left:  { x: -18, y: 0 },
+  right: { x: 18, y: 0 },
 }
 
 export function ProjectCard({
@@ -18,6 +26,7 @@ export function ProjectCard({
   tag,
   gradient,
   height,
+  shift,
   dark,
   index,
   reducedMotion = false,
@@ -51,14 +60,16 @@ export function ProjectCard({
     )
   }, [index, reducedMotion])
 
-  // Hover: image scale + overlay clip-path reveal
+  // Hover: image directional shift + overlay clip-path reveal
   useEffect(() => {
     if (reducedMotion) return
+    const offset = shiftOffset[shift]
 
     if (hovered) {
       if (imageRef.current) {
         gsap.to(imageRef.current, {
-          scale: 1.05,
+          x: offset.x,
+          y: offset.y,
           duration: 0.5,
           ease: "power3.out",
         })
@@ -73,7 +84,8 @@ export function ProjectCard({
     } else {
       if (imageRef.current) {
         gsap.to(imageRef.current, {
-          scale: 1,
+          x: 0,
+          y: 0,
           duration: 0.5,
           ease: "power3.out",
         })
@@ -86,7 +98,7 @@ export function ProjectCard({
         })
       }
     }
-  }, [hovered, reducedMotion])
+  }, [hovered, reducedMotion, shift])
 
   return (
     <div

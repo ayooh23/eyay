@@ -58,7 +58,7 @@ export function MessageBubble({
                 ? `rounded-2xl rounded-bl-sm ${
                     dark ? "bg-neutral-800 text-white" : "bg-neutral-100 text-neutral-900"
                   }`
-                : "rounded-2xl rounded-br-sm bg-[#007AFF] text-white"
+                : `rounded-2xl rounded-br-sm ${dark ? "bg-neutral-700 text-white" : "bg-neutral-900 text-white"}`
             }
           `}
         >
@@ -73,7 +73,7 @@ export function MessageBubble({
         >
           <span>{time}</span>
           {!isSinyo && read && (
-            <span className="text-[#007AFF] text-[10px] font-medium">Read</span>
+            <span className={`text-[10px] font-medium ${dark ? "text-neutral-500" : "text-neutral-400"}`}>Read</span>
           )}
         </div>
       </div>

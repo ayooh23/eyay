@@ -7,6 +7,7 @@ import { TypingIndicator } from "@/components/TypingIndicator"
 import { MessageBubble } from "@/components/MessageBubble"
 import { ProjectCard } from "@/components/ProjectCard"
 import { projects } from "@/data/projects"
+import { ContactChat } from "@/components/ContactChat"
 
 // ─── Chat timeline data ──────────────────────────────────────
 function buildMessages() {
@@ -250,7 +251,7 @@ export default function Home() {
           onClick={() => setDark((d) => !d)}
           className={`w-9 h-9 flex items-center justify-center rounded-full transition-colors duration-300 ${
             dark
-              ? "bg-neutral-800 text-yellow-400"
+              ? "bg-neutral-800 text-neutral-300"
               : "bg-neutral-100 text-neutral-600"
           }`}
           data-hover
@@ -297,6 +298,7 @@ export default function Home() {
                     tag={project.tag}
                     gradient={project.gradient}
                     height={project.height}
+                    shift={project.shift}
                     dark={dark}
                     index={i}
                     reducedMotion={reducedMotion}
