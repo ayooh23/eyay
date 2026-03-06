@@ -3,6 +3,7 @@ export interface Project {
   name: string
   tag: string
   gradient: string // Tailwind gradient classes as placeholder
+  height: number // image height in px — varies per card
   url?: string
 }
 
@@ -10,37 +11,43 @@ export const projects: Project[] = [
   {
     id: "project-1",
     name: "Vaultflow",
-    tag: "fintech dashboard",
+    tag: "\u2026promotes evolving language",
     gradient: "from-violet-600 to-indigo-900",
+    height: 220,
   },
   {
     id: "project-2",
     name: "Mosaic",
-    tag: "generative art tool",
+    tag: "\u2026preserves culture",
     gradient: "from-emerald-500 to-teal-800",
+    height: 280,
   },
   {
     id: "project-3",
     name: "Pulse",
-    tag: "health tracker",
+    tag: "coming soon",
     gradient: "from-rose-500 to-pink-900",
+    height: 200,
   },
   {
     id: "project-4",
     name: "Onyx",
-    tag: "e-commerce platform",
+    tag: "\u2026challenges happiness scans",
     gradient: "from-amber-500 to-orange-800",
+    height: 260,
   },
   {
     id: "project-5",
     name: "Arclight",
-    tag: "creative portfolio",
+    tag: "\u2026improves search finds",
     gradient: "from-cyan-400 to-blue-900",
+    height: 240,
   },
   {
     id: "project-6",
     name: "Terrain",
-    tag: "real estate app",
+    tag: "coming soon",
     gradient: "from-lime-400 to-green-800",
+    height: 190,
   },
 ]

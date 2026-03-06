@@ -10,12 +10,10 @@ import { projects } from "@/data/projects"
 
 // ─── Chat timeline data ──────────────────────────────────────
 function buildMessages() {
-  const randomTag = projects[Math.floor(Math.random() * projects.length)].tag
   return [
     { id: 1, sender: "sinyo" as const, text: "Ey ay", time: "01:23" },
     { id: 2, sender: "ayu" as const, text: "Yo sin", time: "06:46" },
     { id: 3, sender: "sinyo" as const, text: "what if we build something that\u2026", time: "11:18" },
-    { id: 4, sender: "sinyo" as const, text: randomTag, time: "11:23" },
   ]
 }
 
@@ -28,10 +26,8 @@ const timeline = [
   { type: "read", id: 2, at: 4400 },
   { type: "typing", sender: "sinyo", at: 4800 },
   { type: "message", id: 3, at: 6000 },
-  { type: "typing", sender: "sinyo", at: 6800 },
-  { type: "message", id: 4, at: 8200 },
-  { type: "read", id: 4, at: 8700 },
-  { type: "gallery", at: 9400 },
+  { type: "read", id: 3, at: 6400 },
+  { type: "gallery", at: 7200 },
 ]
 
 // ─── Loader ──────────────────────────────────────────────────
@@ -292,28 +288,15 @@ export default function Home() {
 
           {/* ─── Gallery ─── */}
           {showGallery && (
-            <section className="mt-12">
-              {/* Mobile: horizontal scroll / Desktop: grid */}
-              <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <section className="mt-12" style={{ marginLeft: "calc(-50vw + 50%)", marginRight: "calc(-50vw + 50%)", width: "100vw" }}>
+              <div className="flex items-end gap-4 overflow-x-auto no-scrollbar snap-x snap-mandatory pb-4 px-5">
                 {projects.map((project, i) => (
                   <ProjectCard
                     key={project.id}
                     name={project.name}
                     tag={project.tag}
                     gradient={project.gradient}
-                    dark={dark}
-                    index={i}
-                    reducedMotion={reducedMotion}
-                  />
-                ))}
-              </div>
-              <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 sm:hidden">
-                {projects.map((project, i) => (
-                  <ProjectCard
-                    key={project.id}
-                    name={project.name}
-                    tag={project.tag}
-                    gradient={project.gradient}
+                    height={project.height}
                     dark={dark}
                     index={i}
                     reducedMotion={reducedMotion}

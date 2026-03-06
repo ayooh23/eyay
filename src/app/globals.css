@@ -6,10 +6,10 @@ html {
 }
 
 /* Hide scrollbar for horizontal scroll gallery */
-.overflow-x-auto::-webkit-scrollbar {
+.no-scrollbar::-webkit-scrollbar {
   display: none;
 }
-.overflow-x-auto {
+.no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }

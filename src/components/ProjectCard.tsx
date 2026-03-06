@@ -7,6 +7,7 @@ interface ProjectCardProps {
   name: string
   tag: string
   gradient: string
+  height: number
   dark: boolean
   index: number
   reducedMotion?: boolean
@@ -16,6 +17,7 @@ export function ProjectCard({
   name,
   tag,
   gradient,
+  height,
   dark,
   index,
   reducedMotion = false,
@@ -89,13 +91,13 @@ export function ProjectCard({
   return (
     <div
       ref={cardRef}
-      className="flex flex-col gap-2 cursor-pointer w-[260px] sm:w-auto snap-start opacity-0"
+      className="flex flex-col gap-2 cursor-pointer w-[260px] shrink-0 snap-start opacity-0"
       data-hover
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-      {/* Image container */}
-      <div className="relative aspect-[4/3] rounded-xl overflow-hidden">
+      {/* Image container — variable height per project */}
+      <div className="relative rounded-xl overflow-hidden" style={{ height }}>
         <div
           ref={imageRef}
           className={`w-full h-full bg-gradient-to-br ${gradient}`}
